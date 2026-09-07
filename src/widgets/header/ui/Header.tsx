@@ -1,11 +1,13 @@
 import { useSyncExternalStore } from 'react'
 import { LogoutButton, getSession, getServerSnapshot, getSnapshot, subscribe } from '@/features/auth'
+import { BurgerIcon, CloseIcon } from '@/shared/ui'
 
 type HeaderProps = {
-  onOpenMobileNav: () => void
+  mobileNavOpen: boolean
+  onToggleMobileNav: () => void
 }
 
-export function Header({ onOpenMobileNav }: HeaderProps) {
+export function Header({ mobileNavOpen, onToggleMobileNav }: HeaderProps) {
   useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
   const session = getSession()
 
@@ -13,11 +15,12 @@ export function Header({ onOpenMobileNav }: HeaderProps) {
     <div className="flex h-14 items-center gap-3 px-4 md:px-6">
       <button
         type="button"
-        className="rounded-md border border-border px-3 py-1.5 text-small font-medium text-text-primary lg:hidden"
-        onClick={onOpenMobileNav}
-        aria-label="Открыть меню"
+        className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border text-text-primary transition-colors hover:bg-surface-muted lg:hidden"
+        onClick={onToggleMobileNav}
+        aria-label={mobileNavOpen ? 'Закрыть меню' : 'Открыть меню'}
+        aria-expanded={mobileNavOpen}
       >
-        Меню
+        {mobileNavOpen ? <CloseIcon /> : <BurgerIcon />}
       </button>
       <div className="min-w-0 flex-1">
         <p className="truncate text-small text-text-secondary">

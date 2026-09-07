@@ -7,7 +7,7 @@ describe('Sidebar', () => {
   it('рендерит бренд и основные пункты навигации', () => {
     render(
       <MemoryRouter>
-        <Sidebar />
+        <Sidebar variant="drawer" />
       </MemoryRouter>,
     )
 
@@ -15,5 +15,15 @@ describe('Sidebar', () => {
     expect(screen.getByRole('link', { name: 'Dashboard' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Catalog' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Orders' })).toBeInTheDocument()
+  })
+
+  it('в rail даёт доступные имена ссылок через aria-label', () => {
+    render(
+      <MemoryRouter>
+        <Sidebar variant="rail" />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('link', { name: 'Dashboard' })).toBeInTheDocument()
   })
 })

@@ -13,4 +13,5 @@ export {
 export { PageHeader } from './PageHeader'
 export { ConfirmDialog } from './ConfirmDialog'
 export { Select, type SelectOption } from './Select'
+export { NavIcon, BurgerIcon, CloseIcon } from './navIcons'
 

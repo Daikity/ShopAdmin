@@ -9,8 +9,19 @@ export function AppShell() {
 
   return (
     <ShellLayout
-      sidebar={<Sidebar onNavigate={() => setMobileNavOpen(false)} />}
-      header={<Header onOpenMobileNav={() => setMobileNavOpen(true)} />}
+      sidebar={<Sidebar variant="rail" />}
+      mobileSidebar={
+        <Sidebar
+          variant="drawer"
+          onNavigate={() => setMobileNavOpen(false)}
+        />
+      }
+      header={
+        <Header
+          mobileNavOpen={mobileNavOpen}
+          onToggleMobileNav={() => setMobileNavOpen((open) => !open)}
+        />
+      }
       mobileNavOpen={mobileNavOpen}
       onCloseMobileNav={() => setMobileNavOpen(false)}
     >
