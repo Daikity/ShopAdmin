@@ -6,9 +6,9 @@ Sibling к [FlowCRM](https://github.com/Daikity/flowcrm): тот же стек �
 
 ## Статус
 
-**Phase 3 — Bulk Operations:** selection bar, change status/category/price/stock, delete (confirm), export CSV, partial success summary.
+**Phase 4 — Orders:** таблица заказов, URL-фильтры, order details, status workflow (domain module), actions + confirm для cancel/refund, optimistic update + rollback.
 
-Ранее: Phase 0 Foundation, Phase 1 Auth, Phase 2 Catalog.
+Ранее: Phase 0 Foundation, Phase 1 Auth, Phase 2 Catalog, Phase 3 Bulk Operations.
 
 ## Стек
 
@@ -25,7 +25,7 @@ Sibling к [FlowCRM](https://github.com/Daikity/flowcrm): тот же стек �
 
 ```text
 UI → Features/Widgets → Entities → RTK Query → /api/* → MSW
-Bulk: selection → ConfirmDialog (destructive) → POST /products/bulk → partial/success/error summary
+Orders: canChangeOrderStatus() → PATCH /orders/:id → optimistic UI → success | rollback
 ```
 
 ## Команды
@@ -40,9 +40,8 @@ npm run check
 
 `admin` / `admin`
 
-Catalog bulk: `/catalog/products` — выберите строки → Bulk Actions.
-
-Для демо partial failure сервер отклоняет товары с id, кратным 7 (`Conflict: resource locked`).
+- Catalog bulk: `/catalog/products` — выберите строки → Bulk Actions. Partial failure: id, кратный 7.
+- Orders: `/orders` → `/orders/:id`. Optimistic rollback: id, кратный 11 (`Conflict: fulfillment locked`).
 
 ## Чем будет отличаться от FlowCRM
 

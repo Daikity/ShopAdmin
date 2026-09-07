@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { ProductForm } from '@/entities/product'
 import { notifyToast } from '@/shared/lib'
 import {
@@ -38,30 +38,23 @@ export function ProductDetailsPage() {
       <PageHeader
         title={data?.name ?? 'Product'}
         description={data ? `${data.sku} · ${data.categoryName}` : 'Карточка товара'}
+        back={{ to: '/catalog/products' }}
         actions={
-          <div className="flex gap-2">
-            <Link
-              to="/catalog/products"
-              className="rounded-md border border-border px-3 py-2 text-small"
+          data ? (
+            <button
+              type="button"
+              disabled={isDeleting}
+              className="rounded-md border border-danger/40 px-3 py-2 text-small text-danger"
+              onClick={async () => {
+                if (!window.confirm(`Удалить «${data.name}»?`)) return
+                await deleteProduct(data.id).unwrap()
+                notifyToast({ tone: 'success', message: 'Товар удалён' })
+                navigate('/catalog/products')
+              }}
             >
-              К списку
-            </Link>
-            {data ? (
-              <button
-                type="button"
-                disabled={isDeleting}
-                className="rounded-md border border-danger/40 px-3 py-2 text-small text-danger"
-                onClick={async () => {
-                  if (!window.confirm(`Удалить «${data.name}»?`)) return
-                  await deleteProduct(data.id).unwrap()
-                  notifyToast({ tone: 'success', message: 'Товар удалён' })
-                  navigate('/catalog/products')
-                }}
-              >
-                Удалить
-              </button>
-            ) : null}
-          </div>
+              Удалить
+            </button>
+          ) : null
         }
       />
 

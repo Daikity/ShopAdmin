@@ -1,11 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { baseApi } from '@/shared/api'
 import { authApi } from '@/shared/api/authApi'
+import { ordersApi } from '@/shared/api/ordersApi'
 import { productsApi } from '@/shared/api/productsApi'
 import { notificationsReducer } from './notificationsSlice'
 
 void authApi
 void productsApi
+void ordersApi
 
 export const store = configureStore({
   reducer: {

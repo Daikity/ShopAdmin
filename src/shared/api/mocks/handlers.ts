@@ -1,4 +1,5 @@
 import { http, HttpResponse } from 'msw'
+import { orderHandlers } from './order.handlers'
 import { productHandlers } from './product.handlers'
 
 export const handlers = [
@@ -18,4 +19,5 @@ export const handlers = [
     return HttpResponse.json({ ok: true })
   }),
   ...productHandlers,
+  ...orderHandlers,
 ]

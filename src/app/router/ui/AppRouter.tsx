@@ -5,6 +5,7 @@ import { CustomersPage } from '@/pages/customers'
 import { DashboardPage } from '@/pages/dashboard'
 import { InventoryPage } from '@/pages/inventory'
 import { LoginPage } from '@/pages/login'
+import { OrderDetailsPage } from '@/pages/order-details'
 import { OrdersPage } from '@/pages/orders'
 import { PricingPage } from '@/pages/pricing'
 import { ProductDetailsPage } from '@/pages/product-details'
@@ -32,6 +33,7 @@ export function AppRouter() {
             <Route path="/catalog/products" element={<ProductsPage />} />
             <Route path="/catalog/products/:id" element={<ProductDetailsPage />} />
             <Route path="/orders" element={<OrdersPage />} />
+            <Route path="/orders/:id" element={<OrderDetailsPage />} />
             <Route path="/customers" element={<CustomersPage />} />
             <Route path="/inventory" element={<InventoryPage />} />
             <Route path="/pricing" element={<PricingPage />} />
