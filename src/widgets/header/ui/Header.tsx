@@ -1,8 +1,14 @@
+import { useSyncExternalStore } from 'react'
+import { LogoutButton, getSession, getServerSnapshot, getSnapshot, subscribe } from '@/features/auth'
+
 type HeaderProps = {
   onOpenMobileNav: () => void
 }
 
 export function Header({ onOpenMobileNav }: HeaderProps) {
+  useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
+  const session = getSession()
+
   return (
     <div className="flex h-14 items-center gap-3 px-4 md:px-6">
       <button
@@ -18,9 +24,12 @@ export function Header({ onOpenMobileNav }: HeaderProps) {
           E-commerce operations panel
         </p>
       </div>
-      <span className="rounded-md bg-surface-muted px-2.5 py-1 text-caption font-medium text-text-secondary">
-        Phase 0
-      </span>
+      {session ? (
+        <span className="hidden text-small text-text-secondary sm:inline">
+          {session.name}
+        </span>
+      ) : null}
+      <LogoutButton />
     </div>
   )
 }
