@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import type { BulkAction, BulkProductsResult, Category } from '@/entities/product'
 import { notifyToast } from '@/shared/lib'
 import { useBulkProductsMutation } from '@/shared/api/productsApi'
-import { ConfirmDialog } from '@/shared/ui'
+import { ConfirmDialog, Select } from '@/shared/ui'
 import { BulkResultSummary } from './BulkResultSummary'
 
 type ProductBulkBarProps = {
@@ -147,20 +147,19 @@ export function ProductBulkBar({
 
       {panel === 'status' ? (
         <div className="flex flex-wrap items-end gap-2 rounded-lg border border-border bg-surface p-3">
-          <label className="flex flex-col gap-1 text-small">
-            Status
-            <select
-              className="rounded-md border border-border px-2 py-1.5"
+          <div className="min-w-44 flex-1">
+            <p className="mb-1 text-small">Status</p>
+            <Select
+              ariaLabel="Bulk status"
               value={status}
-              onChange={(event) =>
-                setStatus(event.target.value as typeof status)
-              }
-            >
-              <option value="active">active</option>
-              <option value="draft">draft</option>
-              <option value="archived">archived</option>
-            </select>
-          </label>
+              options={[
+                { value: 'active', label: 'active' },
+                { value: 'draft', label: 'draft' },
+                { value: 'archived', label: 'archived' },
+              ]}
+              onChange={(value) => setStatus(value as typeof status)}
+            />
+          </div>
           <button
             type="button"
             className="rounded-md bg-accent px-3 py-2 text-small font-semibold text-accent-foreground"
@@ -181,20 +180,18 @@ export function ProductBulkBar({
 
       {panel === 'category' ? (
         <div className="flex flex-wrap items-end gap-2 rounded-lg border border-border bg-surface p-3">
-          <label className="flex flex-col gap-1 text-small">
-            Category
-            <select
-              className="rounded-md border border-border px-2 py-1.5"
+          <div className="min-w-44 flex-1">
+            <p className="mb-1 text-small">Category</p>
+            <Select
+              ariaLabel="Bulk category"
               value={categoryId}
-              onChange={(event) => setCategoryId(event.target.value)}
-            >
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
-          </label>
+              options={categories.map((category) => ({
+                value: category.id,
+                label: category.name,
+              }))}
+              onChange={setCategoryId}
+            />
+          </div>
           <button
             type="button"
             className="rounded-md bg-accent px-3 py-2 text-small font-semibold text-accent-foreground"
@@ -215,24 +212,23 @@ export function ProductBulkBar({
 
       {panel === 'price' ? (
         <div className="flex flex-wrap items-end gap-2 rounded-lg border border-border bg-surface p-3">
-          <label className="flex flex-col gap-1 text-small">
-            Mode
-            <select
-              className="rounded-md border border-border px-2 py-1.5"
+          <div className="min-w-40">
+            <p className="mb-1 text-small">Mode</p>
+            <Select
+              ariaLabel="Price mode"
               value={priceMode}
-              onChange={(event) =>
-                setPriceMode(event.target.value as typeof priceMode)
-              }
-            >
-              <option value="percent">percent</option>
-              <option value="fixed">fixed €</option>
-            </select>
-          </label>
+              options={[
+                { value: 'percent', label: 'percent' },
+                { value: 'fixed', label: 'fixed €' },
+              ]}
+              onChange={(value) => setPriceMode(value as typeof priceMode)}
+            />
+          </div>
           <label className="flex flex-col gap-1 text-small">
             Value
             <input
               type="number"
-              className="w-28 rounded-md border border-border px-2 py-1.5"
+              className="h-10 w-28 rounded-md border border-border px-2"
               value={priceValue}
               onChange={(event) => setPriceValue(Number(event.target.value))}
             />
@@ -263,24 +259,23 @@ export function ProductBulkBar({
 
       {panel === 'stock' ? (
         <div className="flex flex-wrap items-end gap-2 rounded-lg border border-border bg-surface p-3">
-          <label className="flex flex-col gap-1 text-small">
-            Mode
-            <select
-              className="rounded-md border border-border px-2 py-1.5"
+          <div className="min-w-40">
+            <p className="mb-1 text-small">Mode</p>
+            <Select
+              ariaLabel="Stock mode"
               value={stockMode}
-              onChange={(event) =>
-                setStockMode(event.target.value as typeof stockMode)
-              }
-            >
-              <option value="adjust">adjust</option>
-              <option value="set">set</option>
-            </select>
-          </label>
+              options={[
+                { value: 'adjust', label: 'adjust' },
+                { value: 'set', label: 'set' },
+              ]}
+              onChange={(value) => setStockMode(value as typeof stockMode)}
+            />
+          </div>
           <label className="flex flex-col gap-1 text-small">
             Value
             <input
               type="number"
-              className="w-28 rounded-md border border-border px-2 py-1.5"
+              className="h-10 w-28 rounded-md border border-border px-2"
               value={stockValue}
               onChange={(event) => setStockValue(Number(event.target.value))}
             />

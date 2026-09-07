@@ -12,4 +12,5 @@ export {
 } from './DataTable'
 export { PageHeader } from './PageHeader'
 export { ConfirmDialog } from './ConfirmDialog'
+export { Select, type SelectOption } from './Select'
 

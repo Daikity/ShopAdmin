@@ -1,8 +1,9 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { CreateProductButton } from '@/features/product-create'
 import { ProductBulkBar } from '@/features/product-bulk-update'
+import { useDebouncedValue } from '@/shared/lib'
 import { useGetCategoriesQuery, useGetProductsQuery } from '@/shared/api/productsApi'
-import { PageHeader, QueryState } from '@/shared/ui'
+import { PageHeader, QueryState, Select } from '@/shared/ui'
 import { ProductTable } from '@/widgets/product-table'
 import { useProductsFilters } from '../model/useProductsFilters'
 
@@ -10,6 +11,7 @@ export function ProductsPage() {
   const { filters, setFilters, resetFilters } = useProductsFilters()
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [searchInput, setSearchInput] = useState(filters.search ?? '')
+  const debouncedSearch = useDebouncedValue(searchInput, 300)
 
   const queryArgs = useMemo(
     () => ({
@@ -26,6 +28,33 @@ export function ProductsPage() {
   const { data, isLoading, isError, isFetching, isSuccess } =
     useGetProductsQuery(queryArgs)
   const { data: categories = [] } = useGetCategoriesQuery()
+
+  useEffect(() => {
+    const nextSearch = debouncedSearch.trim() || undefined
+    if (nextSearch === filters.search) return
+    setFilters({ search: nextSearch, page: 1 })
+  }, [debouncedSearch, filters.search, setFilters])
+
+  const statusOptions = useMemo(
+    () => [
+      { value: '', label: 'Все статусы' },
+      { value: 'active', label: 'active' },
+      { value: 'draft', label: 'draft' },
+      { value: 'archived', label: 'archived' },
+    ],
+    [],
+  )
+
+  const categoryOptions = useMemo(
+    () => [
+      { value: '', label: 'Все категории' },
+      ...categories.map((category) => ({
+        value: category.id,
+        label: category.name,
+      })),
+    ],
+    [categories],
+  )
 
   const hasActiveFilters = Boolean(
     filters.search || filters.status || filters.categoryId,
@@ -56,52 +85,35 @@ export function ProductsPage() {
         <input
           value={searchInput}
           onChange={(event) => setSearchInput(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter') {
-              setFilters({ search: searchInput || undefined, page: 1 })
-            }
-          }}
-          placeholder="Поиск (Enter)"
-          className="rounded-md border border-border px-3 py-2 text-small"
+          placeholder="Поиск товаров"
+          className="h-10 rounded-md border border-border px-3 text-small"
           aria-label="Поиск товаров"
         />
-        <select
+        <Select
+          ariaLabel="Статус"
           value={filters.status ?? ''}
-          onChange={(event) =>
+          options={statusOptions}
+          onChange={(value) =>
             setFilters({
-              status: (event.target.value || undefined) as typeof filters.status,
+              status: (value || undefined) as typeof filters.status,
               page: 1,
             })
           }
-          className="rounded-md border border-border px-3 py-2 text-small"
-          aria-label="Статус"
-        >
-          <option value="">Все статусы</option>
-          <option value="active">active</option>
-          <option value="draft">draft</option>
-          <option value="archived">archived</option>
-        </select>
-        <select
+        />
+        <Select
+          ariaLabel="Категория"
           value={filters.categoryId ?? ''}
-          onChange={(event) =>
+          options={categoryOptions}
+          onChange={(value) =>
             setFilters({
-              categoryId: event.target.value || undefined,
+              categoryId: value || undefined,
               page: 1,
             })
           }
-          className="rounded-md border border-border px-3 py-2 text-small"
-          aria-label="Категория"
-        >
-          <option value="">Все категории</option>
-          {categories.map((category) => (
-            <option key={category.id} value={category.id}>
-              {category.name}
-            </option>
-          ))}
-        </select>
+        />
         <button
           type="button"
-          className="rounded-md border border-border px-3 py-2 text-small"
+          className="h-10 rounded-md border border-border px-3 text-small"
           onClick={() => {
             setSearchInput('')
             resetFilters()

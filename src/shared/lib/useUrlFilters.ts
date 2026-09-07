@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import type { z } from 'zod'
 
@@ -40,22 +40,25 @@ export function useUrlFilters<T extends object>({
     return parsed.success ? parsed.data : defaults
   }, [searchParams, schema, defaults])
 
-  function setFilters(patch: Partial<T>) {
-    const nextValues = { ...filters, ...patch }
-    const parsed = schema.safeParse(nextValues)
-    const values = (parsed.success ? parsed.data : nextValues) as Record<
-      string,
-      unknown
-    >
-    setSearchParams(toSearchParams(values, searchParams), { replace: true })
-  }
+  const setFilters = useCallback(
+    (patch: Partial<T>) => {
+      const nextValues = { ...filters, ...patch }
+      const parsed = schema.safeParse(nextValues)
+      const values = (parsed.success ? parsed.data : nextValues) as Record<
+        string,
+        unknown
+      >
+      setSearchParams(toSearchParams(values, searchParams), { replace: true })
+    },
+    [filters, schema, searchParams, setSearchParams],
+  )
 
-  function resetFilters() {
+  const resetFilters = useCallback(() => {
     setSearchParams(
       toSearchParams(defaults as Record<string, unknown>, new URLSearchParams()),
       { replace: true },
     )
-  }
+  }, [defaults, setSearchParams])
 
   return { filters, setFilters, resetFilters, searchParams }
 }
