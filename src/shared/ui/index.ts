@@ -11,3 +11,5 @@ export {
   TableEmpty,
 } from './DataTable'
 export { PageHeader } from './PageHeader'
+export { ConfirmDialog } from './ConfirmDialog'
+

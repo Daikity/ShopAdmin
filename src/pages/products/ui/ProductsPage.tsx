@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { CreateProductButton } from '@/features/product-create'
+import { ProductBulkBar } from '@/features/product-bulk-update'
 import { useGetCategoriesQuery, useGetProductsQuery } from '@/shared/api/productsApi'
 import { PageHeader, QueryState } from '@/shared/ui'
 import { ProductTable } from '@/widgets/product-table'
@@ -47,7 +48,7 @@ export function ProductsPage() {
     <section>
       <PageHeader
         title="Catalog"
-        description="Товары, фильтры и URL state. Bulk — на следующем этапе."
+        description="Товары, URL-фильтры и bulk operations с partial success."
         actions={<CreateProductButton />}
       />
 
@@ -109,6 +110,12 @@ export function ProductsPage() {
           Сбросить
         </button>
       </div>
+
+      <ProductBulkBar
+        selectedIds={selectedIds}
+        categories={categories}
+        onClearSelection={() => setSelectedIds([])}
+      />
 
       <QueryState
         isLoading={isLoading}

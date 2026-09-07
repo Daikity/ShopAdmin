@@ -5,6 +5,9 @@ import type {
   ProductsListParams,
   ProductsListResponse,
   ProductWritePayload,
+  BulkAction,
+  BulkProductsRequest,
+  BulkProductsResult,
 } from '@/entities/product'
 import { categories, productsDb } from './data/products.seed'
 
@@ -17,6 +20,14 @@ function toListItem(product: Product): ProductListItem {
     ...product,
     categoryName: categoryName(product.categoryId),
   }
+}
+
+/** Демо partial failure: каждый 7-й числовой суффикс. */
+function shouldForceFail(productId: string) {
+  const match = productId.match(/(\d+)$/)
+  if (!match) return false
+  const num = Number(match[1])
+  return Number.isFinite(num) && num % 7 === 0
 }
 
 export function listCategories() {
@@ -141,4 +152,117 @@ export function deleteProduct(id: string): boolean {
     (item) => item.productId !== id,
   )
   return productsDb.products.length < before
+}
+
+function applyAction(product: Product, action: BulkAction): string | null {
+  if (action.type === 'export') {
+    return null
+  }
+
+  if (shouldForceFail(product.id)) {
+    return 'Conflict: resource locked'
+  }
+
+  if (action.type === 'changeStatus') {
+    product.status = action.status
+    product.updatedAt = new Date().toISOString()
+    return null
+  }
+
+  if (action.type === 'changeCategory') {
+    product.categoryId = action.categoryId
+    product.updatedAt = new Date().toISOString()
+    return null
+  }
+
+  if (action.type === 'updatePrice') {
+    const next =
+      action.mode === 'percent'
+        ? product.price * (1 + action.value / 100)
+        : product.price + action.value
+    product.price = Math.max(0, Math.round(next * 100) / 100)
+    product.updatedAt = new Date().toISOString()
+
+    for (const variant of productsDb.variants) {
+      if (variant.productId !== product.id) continue
+      const variantNext =
+        action.mode === 'percent'
+          ? variant.price * (1 + action.value / 100)
+          : variant.price + action.value
+      variant.price = Math.max(0, Math.round(variantNext * 100) / 100)
+    }
+    return null
+  }
+
+  if (action.type === 'updateStock') {
+    const next =
+      action.mode === 'set' ? action.value : product.stock + action.value
+    product.stock = Math.max(0, Math.floor(next))
+    product.updatedAt = new Date().toISOString()
+    return null
+  }
+
+  if (action.type === 'delete') {
+    deleteProduct(product.id)
+    return null
+  }
+
+  return 'Unsupported action'
+}
+
+export function bulkProducts(
+  request: BulkProductsRequest,
+): BulkProductsResult {
+  const failures: BulkProductsResult['failures'] = []
+  let updated = 0
+
+  if (request.action.type === 'export') {
+    const rows = ['id,name,sku,status,price,stock']
+    for (const id of request.ids) {
+      const product = productsDb.products.find((item) => item.id === id)
+      if (!product) {
+        failures.push({ id, reason: 'Not found' })
+        continue
+      }
+      rows.push(
+        [
+          product.id,
+          JSON.stringify(product.name),
+          product.sku,
+          product.status,
+          product.price,
+          product.stock,
+        ].join(','),
+      )
+      updated += 1
+    }
+
+    return {
+      updated,
+      failed: failures.length,
+      failures,
+      exportCsv: `${rows.join('\n')}\n`,
+    }
+  }
+
+  for (const id of request.ids) {
+    const product = productsDb.products.find((item) => item.id === id)
+    if (!product) {
+      failures.push({ id, reason: 'Not found' })
+      continue
+    }
+
+    const reason = applyAction(product, request.action)
+    if (reason) {
+      failures.push({ id, reason })
+      continue
+    }
+    updated += 1
+  }
+
+  return {
+    updated,
+    failed: failures.length,
+    failures,
+  }
 }

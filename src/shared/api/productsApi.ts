@@ -1,5 +1,7 @@
 import { baseApi } from './baseApi'
 import type {
+  BulkProductsRequest,
+  BulkProductsResult,
   Category,
   ProductDetails,
   ProductsListParams,
@@ -70,6 +72,17 @@ export const productsApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: [{ type: 'Product', id: 'LIST' }],
     }),
+    bulkProducts: build.mutation<BulkProductsResult, BulkProductsRequest>({
+      query: (body) => ({
+        url: '/products/bulk',
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: (_result, _error, arg) =>
+        arg.action.type === 'export'
+          ? []
+          : [{ type: 'Product', id: 'LIST' }],
+    }),
   }),
 })
 
@@ -80,4 +93,5 @@ export const {
   useCreateProductMutation,
   useUpdateProductMutation,
   useDeleteProductMutation,
+  useBulkProductsMutation,
 } = productsApi

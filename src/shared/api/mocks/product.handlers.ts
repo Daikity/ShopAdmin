@@ -1,6 +1,11 @@
 import { delay, http, HttpResponse } from 'msw'
-import type { ProductStatus, ProductWritePayload } from '@/entities/product'
+import type {
+  BulkProductsRequest,
+  ProductStatus,
+  ProductWritePayload,
+} from '@/entities/product'
 import {
+  bulkProducts,
   createProduct,
   deleteProduct,
   getProductDetails,
@@ -52,6 +57,19 @@ export const productHandlers = [
         sort,
       }),
     )
+  }),
+
+  http.post('/api/products/bulk', async ({ request }) => {
+    const unauthorized = requireAuth(request)
+    if (unauthorized) return unauthorized
+    await delay(400)
+
+    const body = (await request.json()) as BulkProductsRequest
+    if (!Array.isArray(body.ids) || body.ids.length === 0 || !body.action) {
+      return HttpResponse.json({ message: 'Invalid bulk payload' }, { status: 400 })
+    }
+
+    return HttpResponse.json(bulkProducts(body))
   }),
 
   http.get('/api/products/:id', async ({ params, request }) => {

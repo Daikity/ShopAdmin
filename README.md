@@ -6,9 +6,9 @@ Sibling к [FlowCRM](https://github.com/Daikity/flowcrm): тот же стек �
 
 ## Статус
 
-**Phase 2 — Catalog:** products list (search/filters/sort/pagination/selection), product details + tabs, RHF+Zod forms, MSW seed (≥100 products / ≥200 variants), `useUrlFilters` + минимальный Admin Kit.
+**Phase 3 — Bulk Operations:** selection bar, change status/category/price/stock, delete (confirm), export CSV, partial success summary.
 
-Ранее: Phase 0 Foundation, Phase 1 Authentication.
+Ранее: Phase 0 Foundation, Phase 1 Auth, Phase 2 Catalog.
 
 ## Стек
 
@@ -25,7 +25,7 @@ Sibling к [FlowCRM](https://github.com/Daikity/flowcrm): тот же стек �
 
 ```text
 UI → Features/Widgets → Entities → RTK Query → /api/* → MSW
-URL filters: search params → Zod → typed filters → RTK Query
+Bulk: selection → ConfirmDialog (destructive) → POST /products/bulk → partial/success/error summary
 ```
 
 ## Команды
@@ -40,7 +40,9 @@ npm run check
 
 `admin` / `admin`
 
-Catalog: `/catalog/products`, details: `/catalog/products/:id`.
+Catalog bulk: `/catalog/products` — выберите строки → Bulk Actions.
+
+Для демо partial failure сервер отклоняет товары с id, кратным 7 (`Conflict: resource locked`).
 
 ## Чем будет отличаться от FlowCRM
 

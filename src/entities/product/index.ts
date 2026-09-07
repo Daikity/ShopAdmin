@@ -15,4 +15,12 @@ export {
   type ProductFilters,
   type ProductFormValues,
 } from './model/schemas'
+export {
+  resolveBulkStatus,
+  type BulkAction,
+  type BulkFailure,
+  type BulkOperationStatus,
+  type BulkProductsRequest,
+  type BulkProductsResult,
+} from './model/bulk'
 export { ProductForm } from './ui/ProductForm'
