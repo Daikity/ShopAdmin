@@ -1,5 +1,7 @@
 import { http, HttpResponse } from 'msw'
+import { inventoryHandlers } from './inventory.handlers'
 import { orderHandlers } from './order.handlers'
+import { pricingHandlers } from './pricing.handlers'
 import { productHandlers } from './product.handlers'
 
 export const handlers = [
@@ -20,4 +22,6 @@ export const handlers = [
   }),
   ...productHandlers,
   ...orderHandlers,
+  ...inventoryHandlers,
+  ...pricingHandlers,
 ]
