@@ -6,9 +6,9 @@ Sibling к [FlowCRM](https://github.com/Daikity/flowcrm): тот же стек �
 
 ## Статус
 
-**Phase 1 — Authentication:** session facade, authBridge, Bearer + 401 → logout, ProtectedRoute / GuestRoute, MSW `/api/auth/probe`, Toast + QueryState.
+**Phase 2 — Catalog:** products list (search/filters/sort/pagination/selection), product details + tabs, RHF+Zod forms, MSW seed (≥100 products / ≥200 variants), `useUrlFilters` + минимальный Admin Kit.
 
-Ранее: **Phase 0** — scaffold, app shell, quality gate.
+Ранее: Phase 0 Foundation, Phase 1 Authentication.
 
 ## Стек
 
@@ -16,31 +16,16 @@ Sibling к [FlowCRM](https://github.com/Daikity/flowcrm): тот же стек �
 - Tailwind CSS 4
 - Redux Toolkit + RTK Query
 - React Router
+- React Hook Form + Zod
 - MSW (mock API)
 - Vitest + React Testing Library
 - ESLint + `eslint-plugin-boundaries` (FSD)
 
-Далее по плану: React Hook Form + Zod, Recharts, i18next.
-
 ## Архитектура
 
-Feature-Sliced Design:
-
 ```text
-src/
-  app/       # bootstrap, providers, router, store, styles
-  pages/     # страницы маршрутов
-  widgets/   # app-shell, sidebar, header
-  features/  # auth (+ далее product/order/…)
-  entities/  # (с Phase 2+)
-  shared/    # api, config, ui
-```
-
-Auth поток:
-
-```text
-Login → authStorage/session → authBridge → baseApi Authorization
-401 → notifyUnauthorized → logout → ProtectedRoute → /login
+UI → Features/Widgets → Entities → RTK Query → /api/* → MSW
+URL filters: search params → Zod → typed filters → RTK Query
 ```
 
 ## Команды
@@ -48,10 +33,6 @@ Login → authStorage/session → authBridge → baseApi Authorization
 ```bash
 npm install
 npm run dev
-npm run typecheck
-npm run lint
-npm run test:run
-npm run build
 npm run check
 ```
 
@@ -59,7 +40,7 @@ npm run check
 
 `admin` / `admin`
 
-После входа: `/dashboard` и остальные маршруты за ProtectedRoute.
+Catalog: `/catalog/products`, details: `/catalog/products/:id`.
 
 ## Чем будет отличаться от FlowCRM
 

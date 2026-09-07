@@ -1,4 +1,5 @@
 import { http, HttpResponse } from 'msw'
+import { productHandlers } from './product.handlers'
 
 export const handlers = [
   http.get('/api/auth/probe', ({ request }) => {
@@ -16,4 +17,5 @@ export const handlers = [
 
     return HttpResponse.json({ ok: true })
   }),
+  ...productHandlers,
 ]

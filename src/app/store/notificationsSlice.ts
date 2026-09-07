@@ -1,6 +1,7 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
+import type { ToastTone } from '@/shared/lib/toastBridge'
 
-export type ToastTone = 'success' | 'error' | 'warning' | 'info'
+export type { ToastTone }
 
 export type ToastItem = {
   id: string

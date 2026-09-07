@@ -7,6 +7,7 @@ import { InventoryPage } from '@/pages/inventory'
 import { LoginPage } from '@/pages/login'
 import { OrdersPage } from '@/pages/orders'
 import { PricingPage } from '@/pages/pricing'
+import { ProductDetailsPage } from '@/pages/product-details'
 import { ProductsPage } from '@/pages/products'
 import { ReportsPage } from '@/pages/reports'
 import { ReturnsPage } from '@/pages/returns'
@@ -29,6 +30,7 @@ export function AppRouter() {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/catalog" element={<Navigate to="/catalog/products" replace />} />
             <Route path="/catalog/products" element={<ProductsPage />} />
+            <Route path="/catalog/products/:id" element={<ProductDetailsPage />} />
             <Route path="/orders" element={<OrdersPage />} />
             <Route path="/customers" element={<CustomersPage />} />
             <Route path="/inventory" element={<InventoryPage />} />

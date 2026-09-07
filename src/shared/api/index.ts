@@ -6,3 +6,4 @@ export {
 } from './authBridge'
 export { authApi } from './authApi'
 export { baseApi } from './baseApi'
+export { productsApi } from './productsApi'

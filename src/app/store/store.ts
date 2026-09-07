@@ -1,9 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { baseApi } from '@/shared/api'
 import { authApi } from '@/shared/api/authApi'
+import { productsApi } from '@/shared/api/productsApi'
 import { notificationsReducer } from './notificationsSlice'
 
 void authApi
+void productsApi
 
 export const store = configureStore({
   reducer: {
