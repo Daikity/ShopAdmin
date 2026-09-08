@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { CreateProductButton } from '@/features/product-create'
 import { ProductBulkBar } from '@/features/product-bulk-update'
+import { useCan } from '@/features/role-switch'
 import { useDebouncedValue } from '@/shared/lib'
 import { useGetCategoriesQuery, useGetProductsQuery } from '@/shared/api/productsApi'
 import { PageHeader, QueryState, Select } from '@/shared/ui'
@@ -8,6 +9,7 @@ import { ProductTable } from '@/widgets/product-table'
 import { useProductsFilters } from '../model/useProductsFilters'
 
 export function ProductsPage() {
+  const canWrite = useCan('products.write')
   const { filters, setFilters, resetFilters } = useProductsFilters()
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [searchInput, setSearchInput] = useState(filters.search ?? '')
@@ -78,7 +80,7 @@ export function ProductsPage() {
       <PageHeader
         title="Catalog"
         description="Товары, URL-фильтры и bulk operations с partial success."
-        actions={<CreateProductButton />}
+        actions={canWrite ? <CreateProductButton /> : undefined}
       />
 
       <div className="mb-4 grid gap-3 rounded-lg border border-border bg-surface p-3 md:grid-cols-4">
@@ -123,11 +125,13 @@ export function ProductsPage() {
         </button>
       </div>
 
-      <ProductBulkBar
-        selectedIds={selectedIds}
-        categories={categories}
-        onClearSelection={() => setSelectedIds([])}
-      />
+      {canWrite ? (
+        <ProductBulkBar
+          selectedIds={selectedIds}
+          categories={categories}
+          onClearSelection={() => setSelectedIds([])}
+        />
+      ) : null}
 
       <QueryState
         isLoading={isLoading}

@@ -52,7 +52,7 @@ export function ReportsPage() {
         description="Выручка, заказы, категории и топы. Все фильтры — в URL."
       />
 
-      <div className="mb-4 grid gap-3 rounded-lg border border-border bg-surface p-3 md:grid-cols-2 xl:grid-cols-3">
+      <div className="mb-4 grid items-end gap-3 rounded-lg border border-border bg-surface p-3 md:grid-cols-2 xl:grid-cols-3">
         <DatePicker
           label="From"
           value={filters.from}
@@ -63,65 +63,78 @@ export function ReportsPage() {
           value={filters.to}
           onChange={(to) => setFilters({ to })}
         />
-        <Select
-          ariaLabel="Category"
-          value={filters.categoryId ?? ''}
-          options={[
-            { value: '', label: 'Все категории' },
-            ...categories.map((item) => ({
-              value: item.id,
-              label: item.name,
-            })),
-          ]}
-          onChange={(value) =>
-            setFilters({ categoryId: value || undefined })
-          }
-        />
-        <Select
-          ariaLabel="Product"
-          value={filters.productId ?? ''}
-          options={[
-            { value: '', label: 'Все товары' },
-            ...(productsData?.items ?? []).map((item) => ({
-              value: item.id,
-              label: item.name,
-            })),
-          ]}
-          onChange={(value) => setFilters({ productId: value || undefined })}
-        />
-        <Select
-          ariaLabel="Customer"
-          value={filters.customerId ?? ''}
-          options={[
-            { value: '', label: 'Все клиенты' },
-            ...(customersData?.items ?? []).map((item) => ({
-              value: item.id,
-              label: item.name,
-            })),
-          ]}
-          onChange={(value) =>
-            setFilters({ customerId: value || undefined })
-          }
-        />
-        <Select
-          ariaLabel="Payment status"
-          value={filters.paymentStatus ?? ''}
-          options={[
-            { value: '', label: 'Все payment status' },
-            { value: 'pending', label: 'pending' },
-            { value: 'paid', label: 'paid' },
-            { value: 'failed', label: 'failed' },
-            { value: 'refunded', label: 'refunded' },
-          ]}
-          onChange={(value) =>
-            setFilters({
-              paymentStatus: (value || undefined) as typeof filters.paymentStatus,
-            })
-          }
-        />
+        <div className="space-y-1 text-small">
+          <p className="text-text-secondary">Category</p>
+          <Select
+            ariaLabel="Category"
+            value={filters.categoryId ?? ''}
+            options={[
+              { value: '', label: 'Все категории' },
+              ...categories.map((item) => ({
+                value: item.id,
+                label: item.name,
+              })),
+            ]}
+            onChange={(value) =>
+              setFilters({ categoryId: value || undefined })
+            }
+          />
+        </div>
+        <div className="space-y-1 text-small">
+          <p className="text-text-secondary">Product</p>
+          <Select
+            ariaLabel="Product"
+            value={filters.productId ?? ''}
+            options={[
+              { value: '', label: 'Все товары' },
+              ...(productsData?.items ?? []).map((item) => ({
+                value: item.id,
+                label: item.name,
+              })),
+            ]}
+            onChange={(value) => setFilters({ productId: value || undefined })}
+          />
+        </div>
+        <div className="space-y-1 text-small">
+          <p className="text-text-secondary">Customer</p>
+          <Select
+            ariaLabel="Customer"
+            value={filters.customerId ?? ''}
+            options={[
+              { value: '', label: 'Все клиенты' },
+              ...(customersData?.items ?? []).map((item) => ({
+                value: item.id,
+                label: item.name,
+              })),
+            ]}
+            onChange={(value) =>
+              setFilters({ customerId: value || undefined })
+            }
+          />
+        </div>
+        <div className="space-y-1 text-small">
+          <p className="text-text-secondary">Payment status</p>
+          <Select
+            ariaLabel="Payment status"
+            value={filters.paymentStatus ?? ''}
+            options={[
+              { value: '', label: 'Все payment status' },
+              { value: 'pending', label: 'pending' },
+              { value: 'paid', label: 'paid' },
+              { value: 'failed', label: 'failed' },
+              { value: 'refunded', label: 'refunded' },
+            ]}
+            onChange={(value) =>
+              setFilters({
+                paymentStatus: (value ||
+                  undefined) as typeof filters.paymentStatus,
+              })
+            }
+          />
+        </div>
         <button
           type="button"
-          className="h-10 rounded-md border border-border px-3 text-small md:col-span-2 xl:col-span-3"
+          className="h-10 rounded-md border border-border px-3 text-small transition hover:border-accent hover:bg-surface-muted md:col-span-2 xl:col-span-3"
           onClick={() => resetFilters()}
         >
           Сбросить фильтры

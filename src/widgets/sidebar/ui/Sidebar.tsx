@@ -1,4 +1,6 @@
 import { NavLink } from 'react-router-dom'
+import { can } from '@/entities/role'
+import { useDemoRole } from '@/features/role-switch'
 import { mainNavItems } from '@/shared/config/navigation'
 import { cn } from '@/shared/lib'
 import { NavIcon } from '@/shared/ui'
@@ -11,6 +13,10 @@ type SidebarProps = {
 
 export function Sidebar({ variant = 'rail', onNavigate }: SidebarProps) {
   const isDrawer = variant === 'drawer'
+  const role = useDemoRole()
+  const items = mainNavItems.filter(
+    (item) => !item.permission || can(role, item.permission),
+  )
 
   return (
     <div className="flex h-full flex-col">
@@ -44,7 +50,7 @@ export function Sidebar({ variant = 'rail', onNavigate }: SidebarProps) {
         className="flex-1 space-y-1 overflow-y-auto overflow-x-hidden p-2"
         aria-label="Основная навигация"
       >
-        {mainNavItems.map((item) => (
+        {items.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}

@@ -1,4 +1,5 @@
 import type { InventoryListItem } from '@/entities/inventory'
+import { useCan } from '@/features/role-switch'
 import {
   DataTable,
   TBody,
@@ -55,6 +56,7 @@ export function InventoryTable({
   sort,
   onAdjust,
 }: InventoryTableProps) {
+  const canAdjust = useCan('inventory.write')
   return (
     <DataTable>
       <THead>
@@ -114,13 +116,17 @@ export function InventoryTable({
                 {new Date(item.updatedAt).toLocaleDateString('ru-RU')}
               </TD>
               <TD>
-                <button
-                  type="button"
-                  className="text-small font-medium text-accent hover:underline"
-                  onClick={() => onAdjust(item)}
-                >
-                  Adjust
-                </button>
+                {canAdjust ? (
+                  <button
+                    type="button"
+                    className="text-small font-medium text-accent hover:underline"
+                    onClick={() => onAdjust(item)}
+                  >
+                    Adjust
+                  </button>
+                ) : (
+                  <span className="text-caption text-text-secondary">—</span>
+                )}
               </TD>
             </TR>
           ))

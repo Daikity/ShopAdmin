@@ -6,6 +6,7 @@ import {
   isDestructiveOrderAction,
   resolveOrderActionStatus,
 } from '@/entities/order'
+import { useCan } from '@/features/role-switch'
 import { notifyToast } from '@/shared/lib'
 import { useChangeOrderStatusMutation } from '@/shared/api/ordersApi'
 import { ConfirmDialog } from '@/shared/ui'
@@ -23,7 +24,12 @@ export function OrderStatusActions({
 }: OrderStatusActionsProps) {
   const [pendingAction, setPendingAction] = useState<OrderAction | null>(null)
   const [changeStatus, { isLoading }] = useChangeOrderStatusMutation()
-  const actions = getAvailableOrderActions(status)
+  const canWrite = useCan('orders.write')
+  const canRefund = useCan('orders.refund')
+  const actions = getAvailableOrderActions(status).filter((action) => {
+    if (action === 'refund') return canRefund
+    return canWrite
+  })
 
   async function apply(action: OrderAction) {
     const nextStatus = resolveOrderActionStatus(action)
@@ -46,7 +52,9 @@ export function OrderStatusActions({
   if (actions.length === 0) {
     return (
       <p className="text-small text-text-secondary">
-        Нет доступных действий для статуса «{status}».
+        {!canWrite && !canRefund
+          ? 'Нет permission на изменение заказа (orders.write / orders.refund).'
+          : `Нет доступных действий для статуса «${status}».`}
       </p>
     )
   }

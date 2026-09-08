@@ -1,5 +1,12 @@
 import { useSyncExternalStore } from 'react'
-import { LogoutButton, getSession, getServerSnapshot, getSnapshot, subscribe } from '@/features/auth'
+import {
+  LogoutButton,
+  getSession,
+  getServerSnapshot,
+  getSnapshot,
+  subscribe,
+} from '@/features/auth'
+import { RoleSwitcher } from '@/features/role-switch'
 import { BurgerIcon, CloseIcon } from '@/shared/ui'
 
 type HeaderProps = {
@@ -28,10 +35,11 @@ export function Header({ mobileNavOpen, onToggleMobileNav }: HeaderProps) {
         </p>
       </div>
       {session ? (
-        <span className="hidden text-small text-text-secondary sm:inline">
+        <span className="hidden text-small text-text-secondary lg:inline">
           {session.name}
         </span>
       ) : null}
+      <RoleSwitcher />
       <LogoutButton />
     </div>
   )

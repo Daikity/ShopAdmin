@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import type { PriceListItem } from '@/entities/pricing'
 import { PriceBulkBar } from '@/features/price-bulk-update'
 import { EditPriceDialog } from '@/features/price-edit'
+import { useCan } from '@/features/role-switch'
 import { useDebouncedValue } from '@/shared/lib'
 import { useGetCategoriesQuery } from '@/shared/api/productsApi'
 import { useGetPricingQuery } from '@/shared/api/pricingApi'
@@ -10,6 +11,7 @@ import { PricingTable } from '@/widgets/pricing-table'
 import { usePricingFilters } from '../model/usePricingFilters'
 
 export function PricingPage() {
+  const canWrite = useCan('products.write')
   const { filters, setFilters, resetFilters } = usePricingFilters()
   const [searchInput, setSearchInput] = useState(filters.search ?? '')
   const debouncedSearch = useDebouncedValue(searchInput, 300)
@@ -97,11 +99,13 @@ export function PricingPage() {
         </button>
       </div>
 
-      <PriceBulkBar
-        selectedIds={selectedIds}
-        selectedItems={selectedItems}
-        onClearSelection={() => setSelectedIds([])}
-      />
+      {canWrite ? (
+        <PriceBulkBar
+          selectedIds={selectedIds}
+          selectedItems={selectedItems}
+          onClearSelection={() => setSelectedIds([])}
+        />
+      ) : null}
 
       <QueryState
         isLoading={isLoading}
@@ -117,20 +121,26 @@ export function PricingPage() {
           emptyMessage={emptyMessage}
           sort={filters.sort}
           onSort={handleSort}
-          onEdit={setEditItem}
-          onToggle={(id) =>
-            setSelectedIds((prev) =>
-              prev.includes(id)
-                ? prev.filter((item) => item !== id)
-                : [...prev, id],
-            )
+          onEdit={canWrite ? setEditItem : () => undefined}
+          onToggle={
+            canWrite
+              ? (id) =>
+                  setSelectedIds((prev) =>
+                    prev.includes(id)
+                      ? prev.filter((item) => item !== id)
+                      : [...prev, id],
+                  )
+              : () => undefined
           }
-          onToggleAll={(ids) =>
-            setSelectedIds((prev) =>
-              ids.every((id) => prev.includes(id))
-                ? prev.filter((id) => !ids.includes(id))
-                : [...new Set([...prev, ...ids])],
-            )
+          onToggleAll={
+            canWrite
+              ? (ids) =>
+                  setSelectedIds((prev) =>
+                    ids.every((id) => prev.includes(id))
+                      ? prev.filter((id) => !ids.includes(id))
+                      : [...new Set([...prev, ...ids])],
+                  )
+              : () => undefined
           }
         />
         {data ? (

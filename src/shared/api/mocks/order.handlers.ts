@@ -9,6 +9,7 @@ import {
   getOrderDetails,
   listOrders,
 } from './orders.logic'
+import { applyNetworkSimulation } from './networkSimulation'
 
 function requireAuth(request: Request) {
   const auth = request.headers.get('Authorization')
@@ -68,7 +69,14 @@ export const orderHandlers = [
   http.patch('/api/orders/:id', async ({ params, request }) => {
     const unauthorized = requireAuth(request)
     if (unauthorized) return unauthorized
-    await delay(350)
+
+    const network = await applyNetworkSimulation(350)
+    if (!network.ok) {
+      return HttpResponse.json(
+        { message: network.message },
+        { status: network.status },
+      )
+    }
 
     const body = (await request.json()) as { status?: OrderStatus }
     if (!body.status) {

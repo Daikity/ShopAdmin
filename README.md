@@ -6,9 +6,9 @@ Sibling к [FlowCRM](https://github.com/Daikity/flowcrm): тот же стек �
 
 ## Статус
 
-**Phase 7 — Dashboard + Reports:** KPI/Recharts, period URL на dashboard, reports с URL-фильтрами (date/category/product/customer/payment), кастомный `DatePicker`, MSW-агрегации по seed orders/returns/inventory.
+**Phase 8 — Users / Roles / Audit / Settings:** `can()` + Role Switcher, users/roles pages, audit log (URL filters), settings (locale stub, density, network simulation).
 
-Ранее: Phase 0–6 (Foundation, Auth, Catalog, Bulk, Orders, Inventory + Pricing, Returns + Customers).
+Ранее: Phase 0–7 (Foundation → Dashboard/Reports).
 
 ## Стек
 
@@ -26,8 +26,8 @@ Sibling к [FlowCRM](https://github.com/Daikity/flowcrm): тот же стек �
 
 ```text
 UI → Features/Widgets → Entities → RTK Query → /api/* → MSW
-Dashboard: GET /api/dashboard?from&to → KPI + charts
-Reports: GET /api/reports + URL filters → revenue/orders/category/top
+RBAC: demoRole slice → can(role, permission) → hide/disable actions
+Audit: MSW appendAudit → GET /api/audit-log
 ```
 
 ## Команды
@@ -48,11 +48,12 @@ npm run check
 - Pricing: selection → Preview → Apply
 - Returns: `/returns` → drawer actions
 - Customers: `/customers/:id`
-- Dashboard: `/dashboard?from=&to=` + presets Today/7/30/90
-- Reports: `/reports` + category/product/customer/payment filters
+- Dashboard / Reports: URL period/filters + DatePicker
+- Role Switcher (header): Admin / Manager / Support / Warehouse / Analyst
+- Audit: `/audit-log`; Settings: network simulation — каждый 2-й PATCH order/inventory → 500
 
 ## Чем будет отличаться от FlowCRM
 
 ShopAdmin → e-commerce / bulk / order & return workflows / optimistic UI / inventory / pricing / returns / RBAC / audit.
 
-Auth и RBAC симулированы на frontend/MSW; в production authorization должен быть на backend.
+Auth и RBAC симулированы на frontend/MSW (`can()` — UI capability); в production authorization должен быть на backend.

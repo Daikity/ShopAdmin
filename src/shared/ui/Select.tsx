@@ -179,6 +179,10 @@ export function Select({
                   isSelected && 'font-medium text-accent',
                 )}
                 onMouseEnter={() => setActiveIndex(index)}
+                onMouseDown={(event) => {
+                  // Не даём label/trigger перехватить клик и снова открыть список
+                  event.preventDefault()
+                }}
                 onClick={() => commit(option.value)}
               >
                 {option.label}

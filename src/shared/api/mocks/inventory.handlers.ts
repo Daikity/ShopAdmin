@@ -5,6 +5,7 @@ import {
   listInventory,
   listWarehouses,
 } from './inventory.logic'
+import { applyNetworkSimulation } from './networkSimulation'
 
 function requireAuth(request: Request) {
   const auth = request.headers.get('Authorization')
@@ -53,7 +54,14 @@ export const inventoryHandlers = [
   http.patch('/api/inventory/:id', async ({ params, request }) => {
     const unauthorized = requireAuth(request)
     if (unauthorized) return unauthorized
-    await delay(320)
+
+    const network = await applyNetworkSimulation(320)
+    if (!network.ok) {
+      return HttpResponse.json(
+        { message: network.message },
+        { status: network.status },
+      )
+    }
 
     const body = (await request.json()) as {
       adjustment?: number

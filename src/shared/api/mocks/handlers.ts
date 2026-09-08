@@ -7,6 +7,15 @@ import { pricingHandlers } from './pricing.handlers'
 import { productHandlers } from './product.handlers'
 import { reportsHandlers } from './reports.handlers'
 import { returnHandlers } from './return.handlers'
+import { userHandlers } from './user.handlers'
+import { roleHandlers } from './role.handlers'
+import { auditHandlers } from './audit.handlers'
+import { listAuditEntries } from './audit.store'
+import { seedAuditLog } from './data/users.seed'
+
+if (listAuditEntries().length === 0) {
+  seedAuditLog()
+}
 
 export const handlers = [
   http.get('/api/auth/probe', ({ request }) => {
@@ -32,4 +41,7 @@ export const handlers = [
   ...customerHandlers,
   ...dashboardHandlers,
   ...reportsHandlers,
+  ...userHandlers,
+  ...roleHandlers,
+  ...auditHandlers,
 ]

@@ -6,6 +6,7 @@ import {
   isDestructiveReturnAction,
   resolveReturnActionStatus,
 } from '@/entities/return'
+import { useCan } from '@/features/role-switch'
 import { notifyToast } from '@/shared/lib'
 import { useChangeReturnStatusMutation } from '@/shared/api/returnsApi'
 import { ConfirmDialog } from '@/shared/ui'
@@ -21,7 +22,8 @@ export function ReturnStatusActions({
 }: ReturnStatusActionsProps) {
   const [pendingAction, setPendingAction] = useState<ReturnAction | null>(null)
   const [changeStatus, { isLoading }] = useChangeReturnStatusMutation()
-  const actions = getAvailableReturnActions(item.status)
+  const canWrite = useCan('returns.write')
+  const actions = canWrite ? getAvailableReturnActions(item.status) : []
 
   async function apply(action: ReturnAction) {
     try {
@@ -47,7 +49,9 @@ export function ReturnStatusActions({
   if (actions.length === 0) {
     return (
       <p className="text-small text-text-secondary">
-        Нет доступных действий для «{item.status}».
+        {!canWrite
+          ? 'Нет permission returns.write'
+          : `Нет доступных действий для «${item.status}».`}
       </p>
     )
   }
