@@ -1,0 +1,10 @@
+{
+  "id": "shopadmin",
+  "title": "ShopAdmin",
+  "demoBase": "/demos/shopadmin",
+  "folder": "ShopAdmiin",
+  "stack": ["React", "TypeScript", "Vite", "Redux Toolkit", "MSW", "RBAC"],
+  "summary": "Админ-панель e-commerce: товары, заказы, роли и аудит",
+  "featured": true,
+  "status": "online"
+}
