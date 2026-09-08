@@ -10,8 +10,8 @@ export type {
   ProductsListResponse,
 } from './model/types'
 export {
+  createProductFormSchema,
   productFiltersSchema,
-  productFormSchema,
   type ProductFilters,
   type ProductFormValues,
 } from './model/schemas'

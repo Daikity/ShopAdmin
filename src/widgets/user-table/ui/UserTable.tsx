@@ -1,5 +1,7 @@
+import { useTranslation } from 'react-i18next'
 import type { User } from '@/entities/user'
 import { getRoleDefinition } from '@/entities/role'
+import { formatDate, formatDateTime } from '@/shared/lib'
 import {
   DataTable,
   TBody,
@@ -16,16 +18,18 @@ type UserTableProps = {
 }
 
 export function UserTable({ items, emptyMessage }: UserTableProps) {
+  const { t } = useTranslation()
+
   return (
     <DataTable>
       <THead>
         <TR>
-          <TH>Name</TH>
-          <TH>Email</TH>
-          <TH>Role</TH>
-          <TH>Status</TH>
-          <TH>Last login</TH>
-          <TH>Created</TH>
+          <TH>{t('users.table.name')}</TH>
+          <TH>{t('users.table.email')}</TH>
+          <TH>{t('users.table.role')}</TH>
+          <TH>{t('users.table.status')}</TH>
+          <TH>{t('users.table.lastLogin')}</TH>
+          <TH>{t('users.table.created')}</TH>
         </TR>
       </THead>
       <TBody>
@@ -34,17 +38,31 @@ export function UserTable({ items, emptyMessage }: UserTableProps) {
         ) : (
           items.map((user) => (
             <TR key={user.id}>
-              <TD className="font-medium">{user.name}</TD>
-              <TD className="text-text-secondary">{user.email}</TD>
-              <TD>{getRoleDefinition(user.role).name}</TD>
-              <TD>{user.status}</TD>
-              <TD className="text-text-secondary">
-                {user.lastLoginAt
-                  ? new Date(user.lastLoginAt).toLocaleString('en-GB')
-                  : '—'}
+              <TD label={t('users.table.name')} className="font-medium">
+                {user.name}
               </TD>
-              <TD className="text-text-secondary">
-                {new Date(user.createdAt).toLocaleDateString('en-GB')}
+              <TD label={t('users.table.email')} className="text-text-secondary">
+                {user.email}
+              </TD>
+              <TD label={t('users.table.role')}>
+                {t(`enums.demoRole.${user.role}`, {
+                  defaultValue: getRoleDefinition(user.role).name,
+                })}
+              </TD>
+              <TD label={t('users.table.status')}>
+                {t(`enums.userStatus.${user.status}`)}
+              </TD>
+              <TD
+                label={t('users.table.lastLogin')}
+                className="text-text-secondary"
+              >
+                {user.lastLoginAt ? formatDateTime(user.lastLoginAt) : '—'}
+              </TD>
+              <TD
+                label={t('users.table.created')}
+                className="text-text-secondary"
+              >
+                {formatDate(user.createdAt)}
               </TD>
             </TR>
           ))

@@ -24,7 +24,6 @@ export {
   deriveStatusesFromOrderStatus,
   getAllowedNextStatuses,
   getAvailableOrderActions,
-  getOrderActionLabel,
   isDestructiveOrderAction,
   resolveOrderActionStatus,
   type OrderAction,

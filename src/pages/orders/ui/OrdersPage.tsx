@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useDebouncedValue } from '@/shared/lib'
 import { useGetOrdersQuery } from '@/shared/api/ordersApi'
 import { PageHeader, QueryState, Select } from '@/shared/ui'
@@ -6,6 +7,7 @@ import { OrderTable } from '@/widgets/order-table'
 import { useOrdersFilters } from '../model/useOrdersFilters'
 
 export function OrdersPage() {
+  const { t } = useTranslation()
   const { filters, setFilters, resetFilters } = useOrdersFilters()
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [searchInput, setSearchInput] = useState(filters.search ?? '')
@@ -35,38 +37,38 @@ export function OrdersPage() {
 
   const statusOptions = useMemo(
     () => [
-      { value: '', label: 'Все статусы' },
-      { value: 'pending', label: 'pending' },
-      { value: 'confirmed', label: 'confirmed' },
-      { value: 'processing', label: 'processing' },
-      { value: 'shipped', label: 'shipped' },
-      { value: 'delivered', label: 'delivered' },
-      { value: 'cancelled', label: 'cancelled' },
-      { value: 'refunded', label: 'refunded' },
+      { value: '', label: t('common.allStatuses') },
+      { value: 'pending', label: t('enums.orderStatus.pending') },
+      { value: 'confirmed', label: t('enums.orderStatus.confirmed') },
+      { value: 'processing', label: t('enums.orderStatus.processing') },
+      { value: 'shipped', label: t('enums.orderStatus.shipped') },
+      { value: 'delivered', label: t('enums.orderStatus.delivered') },
+      { value: 'cancelled', label: t('enums.orderStatus.cancelled') },
+      { value: 'refunded', label: t('enums.orderStatus.refunded') },
     ],
-    [],
+    [t],
   )
 
   const paymentOptions = useMemo(
     () => [
-      { value: '', label: 'Все payment' },
-      { value: 'pending', label: 'pending' },
-      { value: 'paid', label: 'paid' },
-      { value: 'failed', label: 'failed' },
-      { value: 'refunded', label: 'refunded' },
+      { value: '', label: t('orders.allPayment') },
+      { value: 'pending', label: t('enums.paymentStatus.pending') },
+      { value: 'paid', label: t('enums.paymentStatus.paid') },
+      { value: 'failed', label: t('enums.paymentStatus.failed') },
+      { value: 'refunded', label: t('enums.paymentStatus.refunded') },
     ],
-    [],
+    [t],
   )
 
   const fulfillmentOptions = useMemo(
     () => [
-      { value: '', label: 'Все fulfillment' },
-      { value: 'unfulfilled', label: 'unfulfilled' },
-      { value: 'partial', label: 'partial' },
-      { value: 'fulfilled', label: 'fulfilled' },
-      { value: 'returned', label: 'returned' },
+      { value: '', label: t('orders.allFulfillment') },
+      { value: 'unfulfilled', label: t('enums.fulfillmentStatus.unfulfilled') },
+      { value: 'partial', label: t('enums.fulfillmentStatus.partial') },
+      { value: 'fulfilled', label: t('enums.fulfillmentStatus.fulfilled') },
+      { value: 'returned', label: t('enums.fulfillmentStatus.returned') },
     ],
-    [],
+    [t],
   )
 
   const hasActiveFilters = Boolean(
@@ -77,8 +79,8 @@ export function OrdersPage() {
   )
 
   const emptyMessage = !hasActiveFilters
-    ? 'Пока нет заказов'
-    : 'Нет заказов по текущим фильтрам'
+    ? t('orders.empty')
+    : t('orders.emptyFiltered')
 
   function handleSort(field: string) {
     const [currentField, currentOrder] = (filters.sort ?? 'createdAt:desc').split(
@@ -92,20 +94,20 @@ export function OrdersPage() {
   return (
     <section>
       <PageHeader
-        title="Orders"
-        description="Таблица заказов, URL-фильтры и status workflow с optimistic UI."
+        title={t('orders.pageTitle')}
+        description={t('orders.pageDescription')}
       />
 
       <div className="mb-4 grid gap-3 rounded-lg border border-border bg-surface p-3 md:grid-cols-4">
         <input
           value={searchInput}
           onChange={(event) => setSearchInput(event.target.value)}
-          placeholder="Поиск по номеру / клиенту"
+          placeholder={t('orders.searchPlaceholder')}
           className="h-10 rounded-md border border-border px-3 text-small"
-          aria-label="Поиск заказов"
+          aria-label={t('orders.searchAria')}
         />
         <Select
-          ariaLabel="Статус заказа"
+          ariaLabel={t('orders.statusAria')}
           value={filters.status ?? ''}
           options={statusOptions}
           onChange={(value) =>
@@ -116,7 +118,7 @@ export function OrdersPage() {
           }
         />
         <Select
-          ariaLabel="Payment status"
+          ariaLabel={t('orders.paymentAria')}
           value={filters.paymentStatus ?? ''}
           options={paymentOptions}
           onChange={(value) =>
@@ -127,7 +129,7 @@ export function OrdersPage() {
           }
         />
         <Select
-          ariaLabel="Fulfillment status"
+          ariaLabel={t('orders.fulfillmentAria')}
           value={filters.fulfillmentStatus ?? ''}
           options={fulfillmentOptions}
           onChange={(value) =>
@@ -146,7 +148,7 @@ export function OrdersPage() {
             resetFilters()
           }}
         >
-          Сбросить
+          {t('common.reset')}
         </button>
       </div>
 
@@ -156,7 +158,7 @@ export function OrdersPage() {
         isFetching={isFetching && isSuccess}
         isEmpty={isSuccess && (data?.items.length ?? 0) === 0}
         emptyMessage={emptyMessage}
-        errorMessage="Не удалось загрузить заказы"
+        errorMessage={t('orders.loadError')}
       >
         <OrderTable
           items={data?.items ?? []}
@@ -181,8 +183,18 @@ export function OrdersPage() {
         {data ? (
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-small text-text-secondary">
             <p>
-              {data.total} заказов · стр. {data.page}/{data.totalPages}
-              {selectedIds.length > 0 ? ` · выбрано ${selectedIds.length}` : ''}
+              {selectedIds.length > 0
+                ? t('common.paginationSelected', {
+                    total: data.total,
+                    page: data.page,
+                    totalPages: data.totalPages,
+                    selected: selectedIds.length,
+                  })
+                : t('orders.pagination', {
+                    total: data.total,
+                    page: data.page,
+                    totalPages: data.totalPages,
+                  })}
             </p>
             <div className="flex gap-2">
               <button
@@ -191,7 +203,7 @@ export function OrdersPage() {
                 disabled={data.page <= 1}
                 onClick={() => setFilters({ page: data.page - 1 })}
               >
-                Назад
+                {t('common.prev')}
               </button>
               <button
                 type="button"
@@ -199,7 +211,7 @@ export function OrdersPage() {
                 disabled={data.page >= data.totalPages}
                 onClick={() => setFilters({ page: data.page + 1 })}
               >
-                Далее
+                {t('common.next')}
               </button>
             </div>
           </div>

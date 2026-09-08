@@ -1,7 +1,11 @@
+import { useMemo, type ReactNode } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import type { ReactNode } from 'react'
-import { productFormSchema, type ProductFormValues } from '../model/schemas'
+import { useTranslation } from 'react-i18next'
+import {
+  createProductFormSchema,
+  type ProductFormValues,
+} from '../model/schemas'
 import type {
   Category,
   ProductDetails,
@@ -91,12 +95,14 @@ export function ProductForm({
   onSubmit,
   isSubmitting = false,
 }: ProductFormProps) {
+  const { t } = useTranslation()
+  const schema = useMemo(() => createProductFormSchema(t), [t])
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<ProductFormValues>({
-    resolver: zodResolver(productFormSchema),
+    resolver: zodResolver(schema),
     defaultValues: toFormValues(initial),
   })
 
@@ -107,21 +113,24 @@ export function ProductForm({
         await onSubmit(toPayload(values))
       })}
     >
-      <Field label="Name" error={errors.name?.message}>
+      <Field label={t('products.form.name')} error={errors.name?.message}>
         <input className={inputClass} {...register('name')} />
       </Field>
-      <Field label="Brand" error={errors.brand?.message}>
+      <Field label={t('products.form.brand')} error={errors.brand?.message}>
         <input className={inputClass} {...register('brand')} />
       </Field>
-      <Field label="SKU" error={errors.sku?.message}>
+      <Field label={t('products.form.sku')} error={errors.sku?.message}>
         <input className={inputClass} {...register('sku')} />
       </Field>
-      <Field label="Barcode" error={errors.barcode?.message}>
+      <Field label={t('products.form.barcode')} error={errors.barcode?.message}>
         <input className={inputClass} {...register('barcode')} />
       </Field>
-      <Field label="Category" error={errors.categoryId?.message}>
+      <Field
+        label={t('products.form.category')}
+        error={errors.categoryId?.message}
+      >
         <select className={inputClass} {...register('categoryId')}>
-          <option value="">Выберите</option>
+          <option value="">{t('products.form.selectCategory')}</option>
           {categories.map((category) => (
             <option key={category.id} value={category.id}>
               {category.name}
@@ -129,14 +138,14 @@ export function ProductForm({
           ))}
         </select>
       </Field>
-      <Field label="Status" error={errors.status?.message}>
+      <Field label={t('products.form.status')} error={errors.status?.message}>
         <select className={inputClass} {...register('status')}>
-          <option value="active">active</option>
-          <option value="draft">draft</option>
-          <option value="archived">archived</option>
+          <option value="active">{t('enums.productStatus.active')}</option>
+          <option value="draft">{t('enums.productStatus.draft')}</option>
+          <option value="archived">{t('enums.productStatus.archived')}</option>
         </select>
       </Field>
-      <Field label="Price" error={errors.price?.message}>
+      <Field label={t('products.form.price')} error={errors.price?.message}>
         <input
           type="number"
           step="0.01"
@@ -144,14 +153,14 @@ export function ProductForm({
           {...register('price', { valueAsNumber: true })}
         />
       </Field>
-      <Field label="Stock" error={errors.stock?.message}>
+      <Field label={t('products.form.stock')} error={errors.stock?.message}>
         <input
           type="number"
           className={inputClass}
           {...register('stock', { valueAsNumber: true })}
         />
       </Field>
-      <Field label="Weight" error={errors.weight?.message}>
+      <Field label={t('products.form.weight')} error={errors.weight?.message}>
         <input
           type="number"
           step="0.01"
@@ -159,41 +168,58 @@ export function ProductForm({
           {...register('weight', { valueAsNumber: true })}
         />
       </Field>
-      <Field label="Tags (comma)" error={errors.tags?.message}>
+      <Field label={t('products.form.tags')} error={errors.tags?.message}>
         <input className={inputClass} {...register('tags')} />
       </Field>
       <div className="md:col-span-2">
-        <Field label="Description" error={errors.description?.message}>
-          <textarea className={inputClass} rows={3} {...register('description')} />
+        <Field
+          label={t('products.form.description')}
+          error={errors.description?.message}
+        >
+          <textarea
+            className={inputClass}
+            rows={3}
+            {...register('description')}
+          />
         </Field>
       </div>
-      <Field label="Length" error={errors.length?.message}>
+      <Field label={t('products.form.length')} error={errors.length?.message}>
         <input
           type="number"
           className={inputClass}
           {...register('length', { valueAsNumber: true })}
         />
       </Field>
-      <Field label="Width" error={errors.width?.message}>
+      <Field label={t('products.form.width')} error={errors.width?.message}>
         <input
           type="number"
           className={inputClass}
           {...register('width', { valueAsNumber: true })}
         />
       </Field>
-      <Field label="Height" error={errors.height?.message}>
+      <Field label={t('products.form.height')} error={errors.height?.message}>
         <input
           type="number"
           className={inputClass}
           {...register('height', { valueAsNumber: true })}
         />
       </Field>
-      <Field label="SEO title" error={errors.seoTitle?.message}>
+      <Field
+        label={t('products.form.seoTitle')}
+        error={errors.seoTitle?.message}
+      >
         <input className={inputClass} {...register('seoTitle')} />
       </Field>
       <div className="md:col-span-2">
-        <Field label="SEO description" error={errors.seoDescription?.message}>
-          <textarea className={inputClass} rows={2} {...register('seoDescription')} />
+        <Field
+          label={t('products.form.seoDescription')}
+          error={errors.seoDescription?.message}
+        >
+          <textarea
+            className={inputClass}
+            rows={2}
+            {...register('seoDescription')}
+          />
         </Field>
       </div>
       <div className="md:col-span-2">
@@ -202,7 +228,7 @@ export function ProductForm({
           disabled={isSubmitting}
           className="rounded-md bg-accent px-4 py-2.5 text-small font-semibold text-accent-foreground hover:bg-accent-hover disabled:opacity-60"
         >
-          {isSubmitting ? 'Сохранение…' : submitLabel}
+          {isSubmitting ? t('products.form.saving') : submitLabel}
         </button>
       </div>
     </form>

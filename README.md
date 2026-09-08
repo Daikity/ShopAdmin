@@ -6,9 +6,9 @@ Sibling к [FlowCRM](https://github.com/Daikity/flowcrm): тот же стек �
 
 ## Статус
 
-**Phase 8 — Users / Roles / Audit / Settings:** `can()` + Role Switcher, users/roles pages, audit log (URL filters), settings (locale stub, density, network simulation).
+**Phase 9 — i18n + a11y + UX:** `i18next` en/ru/de, Intl (деньги/даты), Settings → locale, ConfirmDialog focus trap, mobile card-stack таблицы.
 
-Ранее: Phase 0–7 (Foundation → Dashboard/Reports).
+Ранее: Phase 0–8 (Foundation → Users/Roles/Audit/Settings).
 
 ## Стек
 
@@ -17,6 +17,7 @@ Sibling к [FlowCRM](https://github.com/Daikity/flowcrm): тот же стек �
 - Redux Toolkit + RTK Query
 - React Router
 - React Hook Form + Zod
+- i18next + react-i18next (en / ru / de)
 - Recharts
 - MSW (mock API)
 - Vitest + React Testing Library
@@ -26,6 +27,7 @@ Sibling к [FlowCRM](https://github.com/Daikity/flowcrm): тот же стек �
 
 ```text
 UI → Features/Widgets → Entities → RTK Query → /api/* → MSW
+i18n: settings.locale → i18n.changeLanguage → LOCALE_TO_INTL / formatMoney|formatDate
 RBAC: demoRole slice → can(role, permission) → hide/disable actions
 Audit: MSW appendAudit → GET /api/audit-log
 ```
@@ -50,7 +52,8 @@ npm run check
 - Customers: `/customers/:id`
 - Dashboard / Reports: URL period/filters + DatePicker
 - Role Switcher (header): Admin / Manager / Support / Warehouse / Analyst
-- Audit: `/audit-log`; Settings: network simulation — каждый 2-й PATCH order/inventory → 500
+- Audit: `/audit-log`; Settings: language + density + network simulation
+- i18n: Settings → Language (en / ru / de)
 
 ## Чем будет отличаться от FlowCRM
 

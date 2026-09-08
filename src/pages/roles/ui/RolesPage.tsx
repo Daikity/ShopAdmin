@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next'
 import { PERMISSIONS } from '@/entities/role'
 import { useCan } from '@/features/role-switch'
 import { useGetRolesQuery } from '@/shared/api/rolesApi'
 import { PageHeader, QueryState } from '@/shared/ui'
 
 export function RolesPage() {
+  const { t } = useTranslation()
   const canRead = useCan('users.read')
   const { data, isLoading, isError, isFetching, isSuccess } = useGetRolesQuery(
     undefined,
@@ -13,9 +15,12 @@ export function RolesPage() {
   if (!canRead) {
     return (
       <section>
-        <PageHeader title="Roles" description="Нет доступа (users.read)." />
+        <PageHeader
+          title={t('roles.pageTitle')}
+          description={t('roles.accessDenied')}
+        />
         <p className="rounded-md border border-border bg-surface p-6 text-small text-text-secondary">
-          Переключите demo role на Admin или Manager.
+          {t('common.accessDeniedSwitchRole')}
         </p>
       </section>
     )
@@ -24,8 +29,8 @@ export function RolesPage() {
   return (
     <section>
       <PageHeader
-        title="Roles"
-        description="Матрица permissions. UI capability через can() — не backend security."
+        title={t('roles.pageTitle')}
+        description={t('roles.pageDescription')}
       />
 
       <QueryState
@@ -33,8 +38,8 @@ export function RolesPage() {
         isError={isError}
         isFetching={isFetching && isSuccess}
         isEmpty={isSuccess && (data?.length ?? 0) === 0}
-        emptyMessage="Нет ролей"
-        errorMessage="Не удалось загрузить roles"
+        emptyMessage={t('roles.empty')}
+        errorMessage={t('roles.loadError')}
       >
         <div className="space-y-4">
           {(data ?? []).map((role) => (
@@ -44,13 +49,21 @@ export function RolesPage() {
             >
               <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
                 <div>
-                  <h2 className="text-h2">{role.name}</h2>
+                  <h2 className="text-h2">
+                    {t(`enums.demoRole.${role.id}`, {
+                      defaultValue: role.name,
+                    })}
+                  </h2>
                   <p className="text-small text-text-secondary">
-                    {role.description}
+                    {t(`roles.desc.${role.id}`, {
+                      defaultValue: role.description,
+                    })}
                   </p>
                 </div>
                 <span className="text-caption text-text-secondary">
-                  {role.permissions.length} permissions
+                  {t('roles.permissionsCount', {
+                    count: role.permissions.length,
+                  })}
                 </span>
               </div>
               <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">

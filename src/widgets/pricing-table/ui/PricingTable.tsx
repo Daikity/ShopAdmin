@@ -1,4 +1,6 @@
+import { useTranslation } from 'react-i18next'
 import type { PriceListItem } from '@/entities/pricing'
+import { formatDate, formatMoney } from '@/shared/lib'
 import {
   DataTable,
   TBody,
@@ -55,6 +57,7 @@ export function PricingTable({
   sort,
   onEdit,
 }: PricingTableProps) {
+  const { t } = useTranslation()
   const allIds = items.map((item) => item.id)
   const allSelected =
     allIds.length > 0 && allIds.every((id) => selectedIds.includes(id))
@@ -68,47 +71,52 @@ export function PricingTable({
               type="checkbox"
               checked={allSelected}
               onChange={() => onToggleAll(allIds)}
-              aria-label="Выбрать все на странице"
+              aria-label={t('common.selectAllOnPage')}
             />
           </TH>
           <TH>
             <SortButton
-              label="Product"
+              label={t('pricing.table.product')}
               field="productName"
               sort={sort}
               onSort={onSort}
             />
           </TH>
           <TH>
-            <SortButton label="SKU" field="sku" sort={sort} onSort={onSort} />
+            <SortButton
+              label={t('pricing.table.sku')}
+              field="sku"
+              sort={sort}
+              onSort={onSort}
+            />
           </TH>
           <TH>
             <SortButton
-              label="Price"
+              label={t('pricing.table.price')}
               field="price"
               sort={sort}
               onSort={onSort}
             />
           </TH>
-          <TH>Compare-at</TH>
+          <TH>{t('pricing.table.compareAt')}</TH>
           <TH>
             <SortButton
-              label="Margin"
+              label={t('pricing.table.margin')}
               field="margin"
               sort={sort}
               onSort={onSort}
             />
           </TH>
-          <TH>Discount</TH>
+          <TH>{t('pricing.table.discount')}</TH>
           <TH>
             <SortButton
-              label="Updated"
+              label={t('pricing.table.updated')}
               field="updatedAt"
               sort={sort}
               onSort={onSort}
             />
           </TH>
-          <TH>Actions</TH>
+          <TH>{t('pricing.table.actions')}</TH>
         </TR>
       </THead>
       <TBody>
@@ -122,29 +130,45 @@ export function PricingTable({
                   type="checkbox"
                   checked={selectedIds.includes(item.id)}
                   onChange={() => onToggle(item.id)}
-                  aria-label={`Выбрать ${item.productName}`}
+                  aria-label={t('common.selectItem', { name: item.productName })}
                 />
               </TD>
-              <TD className="font-medium">{item.productName}</TD>
-              <TD className="text-small text-text-secondary">{item.sku}</TD>
-              <TD>€{item.price.toFixed(2)}</TD>
-              <TD>
+              <TD label={t('pricing.table.product')} className="font-medium">
+                {item.productName}
+              </TD>
+              <TD
+                label={t('pricing.table.sku')}
+                className="text-small text-text-secondary"
+              >
+                {item.sku}
+              </TD>
+              <TD label={t('pricing.table.price')}>
+                {formatMoney(item.price)}
+              </TD>
+              <TD label={t('pricing.table.compareAt')}>
                 {item.compareAtPrice !== null
-                  ? `€${item.compareAtPrice.toFixed(2)}`
+                  ? formatMoney(item.compareAtPrice)
                   : '—'}
               </TD>
-              <TD>{item.margin.toFixed(1)}%</TD>
-              <TD>{item.discount.toFixed(1)}%</TD>
-              <TD className="text-small text-text-secondary">
-                {new Date(item.updatedAt).toLocaleDateString('ru-RU')}
+              <TD label={t('pricing.table.margin')}>
+                {item.margin.toFixed(1)}%
               </TD>
-              <TD>
+              <TD label={t('pricing.table.discount')}>
+                {item.discount.toFixed(1)}%
+              </TD>
+              <TD
+                label={t('pricing.table.updated')}
+                className="text-small text-text-secondary"
+              >
+                {formatDate(item.updatedAt)}
+              </TD>
+              <TD label={t('pricing.table.actions')}>
                 <button
                   type="button"
                   className="text-small font-medium text-accent hover:underline"
                   onClick={() => onEdit(item)}
                 >
-                  Edit
+                  {t('pricing.edit')}
                 </button>
               </TD>
             </TR>

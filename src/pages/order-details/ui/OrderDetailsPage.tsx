@@ -1,12 +1,19 @@
+import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
+import type {
+  FulfillmentStatus,
+  OrderStatus,
+  PaymentStatus,
+} from '@/entities/order'
 import { OrderStatusActions } from '@/features/order-change-status'
+import { formatDateTime, formatMoney } from '@/shared/lib'
 import { useGetOrderQuery } from '@/shared/api/ordersApi'
 import { PageHeader, QueryState } from '@/shared/ui'
 
-function StatusBadge({ value }: { value: string }) {
+function StatusBadge({ children }: { children: string }) {
   return (
-    <span className="rounded-md bg-surface-muted px-2 py-0.5 text-caption capitalize">
-      {value}
+    <span className="rounded-md bg-surface-muted px-2 py-0.5 text-caption">
+      {children}
     </span>
   )
 }
@@ -37,6 +44,7 @@ function AddressBlock({
 }
 
 export function OrderDetailsPage() {
+  const { t } = useTranslation()
   const { id = '' } = useParams()
   const { data, isLoading, isError, isFetching, isSuccess } = useGetOrderQuery(
     id,
@@ -46,11 +54,11 @@ export function OrderDetailsPage() {
   return (
     <section>
       <PageHeader
-        title={data?.number ?? 'Order'}
+        title={data?.number ?? t('orders.detailsFallbackTitle')}
         description={
           data
-            ? `${data.customerName} · ${new Date(data.createdAt).toLocaleString('ru-RU')}`
-            : 'Карточка заказа'
+            ? `${data.customerName} · ${formatDateTime(data.createdAt)}`
+            : t('orders.detailsFallbackDescription')
         }
         back={{ to: '/orders' }}
       />
@@ -59,22 +67,34 @@ export function OrderDetailsPage() {
         isLoading={isLoading}
         isError={isError}
         isFetching={isFetching && isSuccess}
-        errorMessage="Заказ не найден или недоступен"
+        errorMessage={t('orders.detailsLoadError')}
       >
         {data ? (
           <div className="space-y-4">
             <div className="rounded-lg border border-border bg-surface p-4">
               <div className="flex flex-wrap items-center gap-3">
-                <StatusBadge value={data.status} />
-                <StatusBadge value={data.paymentStatus} />
-                <StatusBadge value={data.fulfillmentStatus} />
+                <StatusBadge>
+                  {t(`enums.orderStatus.${data.status as OrderStatus}`)}
+                </StatusBadge>
+                <StatusBadge>
+                  {t(
+                    `enums.paymentStatus.${data.paymentStatus as PaymentStatus}`,
+                  )}
+                </StatusBadge>
+                <StatusBadge>
+                  {t(
+                    `enums.fulfillmentStatus.${data.fulfillmentStatus as FulfillmentStatus}`,
+                  )}
+                </StatusBadge>
                 <span className="text-small text-text-secondary">
-                  Total €{data.total.toFixed(2)}
+                  {t('orders.details.total', {
+                    total: formatMoney(data.total),
+                  })}
                 </span>
               </div>
               <div className="mt-4">
                 <h3 className="mb-2 text-small font-semibold text-text-secondary">
-                  Actions
+                  {t('orders.details.actions')}
                 </h3>
                 <OrderStatusActions
                   orderId={data.id}
@@ -82,8 +102,7 @@ export function OrderDetailsPage() {
                   status={data.status}
                 />
                 <p className="mt-2 text-caption text-text-secondary">
-                  Демо rollback: заказы с id, кратным 11 (например ord-0011),
-                  отвечают 409.
+                  {t('orders.details.rollbackHint')}
                 </p>
               </div>
             </div>
@@ -91,7 +110,7 @@ export function OrderDetailsPage() {
             <div className="grid gap-4 md:grid-cols-2">
               <div className="rounded-lg border border-border bg-surface p-4">
                 <h3 className="text-small font-semibold text-text-secondary">
-                  Customer
+                  {t('orders.details.customer')}
                 </h3>
                 <p className="mt-2 font-medium">{data.customerName}</p>
                 <p className="text-small text-text-secondary">
@@ -100,21 +119,33 @@ export function OrderDetailsPage() {
               </div>
               <div className="rounded-lg border border-border bg-surface p-4">
                 <h3 className="text-small font-semibold text-text-secondary">
-                  Summary
+                  {t('orders.details.summary')}
                 </h3>
-                <p className="mt-2 text-small">Items: {data.itemsCount}</p>
-                <p className="text-small">Updated: {new Date(data.updatedAt).toLocaleString('ru-RU')}</p>
+                <p className="mt-2 text-small">
+                  {t('orders.details.items', { count: data.itemsCount })}
+                </p>
+                <p className="text-small">
+                  {t('orders.details.updated', {
+                    date: formatDateTime(data.updatedAt),
+                  })}
+                </p>
               </div>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
-              <AddressBlock title="Shipping" address={data.shippingAddress} />
-              <AddressBlock title="Billing" address={data.billingAddress} />
+              <AddressBlock
+                title={t('orders.details.shipping')}
+                address={data.shippingAddress}
+              />
+              <AddressBlock
+                title={t('orders.details.billing')}
+                address={data.billingAddress}
+              />
             </div>
 
             <div className="rounded-lg border border-border bg-surface p-4">
               <h3 className="mb-3 text-small font-semibold text-text-secondary">
-                Products
+                {t('orders.details.products')}
               </h3>
               <ul className="space-y-2">
                 {data.items.map((item) => (
@@ -128,7 +159,7 @@ export function OrderDetailsPage() {
                         {item.sku} · ×{item.quantity}
                       </p>
                     </div>
-                    <p className="text-small">€{item.total.toFixed(2)}</p>
+                    <p className="text-small">{formatMoney(item.total)}</p>
                   </li>
                 ))}
               </ul>
@@ -137,13 +168,13 @@ export function OrderDetailsPage() {
             <div className="grid gap-4 md:grid-cols-2">
               <div className="rounded-lg border border-border bg-surface p-4">
                 <h3 className="mb-3 text-small font-semibold text-text-secondary">
-                  Timeline
+                  {t('orders.details.timeline')}
                 </h3>
                 <ul className="space-y-2">
                   {data.timeline.map((event) => (
                     <li key={event.id} className="text-small">
                       <span className="text-text-secondary">
-                        {new Date(event.at).toLocaleString('ru-RU')}
+                        {formatDateTime(event.at)}
                       </span>
                       <span className="mx-2">·</span>
                       {event.message}
@@ -153,10 +184,12 @@ export function OrderDetailsPage() {
               </div>
               <div className="rounded-lg border border-border bg-surface p-4">
                 <h3 className="mb-3 text-small font-semibold text-text-secondary">
-                  Notes
+                  {t('orders.details.notes')}
                 </h3>
                 {data.notes.length === 0 ? (
-                  <p className="text-small text-text-secondary">Нет заметок</p>
+                  <p className="text-small text-text-secondary">
+                    {t('orders.details.noNotes')}
+                  </p>
                 ) : (
                   <ul className="space-y-2">
                     {data.notes.map((note) => (

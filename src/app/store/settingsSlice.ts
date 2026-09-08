@@ -7,12 +7,19 @@ import {
   type AppSettings,
   type TableDensity,
 } from '@/shared/config/appSettings'
+import { i18n } from '@/shared/config/i18n'
 
 const initialState: AppSettings = readAppSettings()
 
 function persist(state: AppSettings) {
   // current() — снимок без Immer Proxy, чтобы localStorage точно обновился
   writeAppSettings(current(state))
+}
+
+function syncI18n(locale: AppLocale) {
+  if (i18n.language !== locale) {
+    void i18n.changeLanguage(locale)
+  }
 }
 
 const settingsSlice = createSlice({
@@ -22,6 +29,7 @@ const settingsSlice = createSlice({
     setLocale: (state, action: PayloadAction<AppLocale>) => {
       state.locale = action.payload
       persist(state)
+      syncI18n(action.payload)
     },
     setTableDensity: (state, action: PayloadAction<TableDensity>) => {
       state.tableDensity = action.payload
@@ -34,6 +42,7 @@ const settingsSlice = createSlice({
     resetSettings: () => {
       const next = { ...DEFAULT_APP_SETTINGS }
       writeAppSettings(next)
+      syncI18n(next.locale)
       return next
     },
   },

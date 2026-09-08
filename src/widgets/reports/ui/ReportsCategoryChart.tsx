@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import {
   Cell,
   Pie,
@@ -15,13 +16,16 @@ type ReportsCategoryChartProps = {
 }
 
 export function ReportsCategoryChart({ data }: ReportsCategoryChartProps) {
+  const { t } = useTranslation()
   return (
     <div className="rounded-lg border border-border bg-surface p-4 shadow-panel">
-      <h2 className="text-h2">Sales by category</h2>
-      <p className="mt-1 text-small text-text-secondary">Распределение выручки</p>
+      <h2 className="text-h2">{t('reports.chart.categoryTitle')}</h2>
+      <p className="mt-1 text-small text-text-secondary">
+        {t('reports.chart.categorySubtitle')}
+      </p>
       {data.length === 0 ? (
         <p className="py-16 text-center text-small text-text-secondary">
-          Нет данных
+          {t('reports.chart.empty')}
         </p>
       ) : (
         <div className="mt-4 grid gap-4 md:grid-cols-[1fr_1fr]">

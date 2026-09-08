@@ -1,6 +1,37 @@
+import { i18n, LOCALE_TO_INTL } from '@/shared/config/i18n'
+import type { AppLocale } from '@/shared/config/appSettings'
+
+function resolveIntlLocale(locale?: string) {
+  const key = (locale ?? i18n.language) as AppLocale
+  return LOCALE_TO_INTL[key] ?? LOCALE_TO_INTL.en
+}
+
 /** YYYY-MM-DD из Date (UTC). */
 export function toIsoDate(date: Date) {
   return date.toISOString().slice(0, 10)
+}
+
+/** Отображение даты/даты-времени по locale UI. */
+export function formatDate(value: string | Date, locale?: string) {
+  const date = typeof value === 'string' ? new Date(value) : value
+  if (Number.isNaN(date.getTime())) return '—'
+  return new Intl.DateTimeFormat(resolveIntlLocale(locale), {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  }).format(date)
+}
+
+export function formatDateTime(value: string | Date, locale?: string) {
+  const date = typeof value === 'string' ? new Date(value) : value
+  if (Number.isNaN(date.getTime())) return '—'
+  return new Intl.DateTimeFormat(resolveIntlLocale(locale), {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date)
 }
 
 /** Парсинг YYYY-MM-DD; невалидные → null. */

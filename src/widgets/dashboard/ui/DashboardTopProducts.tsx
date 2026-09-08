@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import type { DashboardTopProduct } from '@/entities/dashboard'
 import { formatMoney } from '@/shared/lib'
 
@@ -7,13 +8,16 @@ type DashboardTopProductsProps = {
 }
 
 export function DashboardTopProducts({ items }: DashboardTopProductsProps) {
+  const { t } = useTranslation()
   return (
     <div className="rounded-lg border border-border bg-surface p-4 shadow-panel">
-      <h2 className="text-h2">Top products</h2>
-      <p className="mt-1 text-small text-text-secondary">По выручке в периоде</p>
+      <h2 className="text-h2">{t('dashboard.topProductsTitle')}</h2>
+      <p className="mt-1 text-small text-text-secondary">
+        {t('dashboard.topProductsSubtitle')}
+      </p>
       {items.length === 0 ? (
         <p className="py-10 text-center text-small text-text-secondary">
-          Нет продаж за период
+          {t('dashboard.topProductsEmpty')}
         </p>
       ) : (
         <ul className="mt-4 divide-y divide-border">
@@ -30,7 +34,7 @@ export function DashboardTopProducts({ items }: DashboardTopProductsProps) {
                   {item.productName}
                 </Link>
                 <p className="text-caption text-text-secondary">
-                  qty {item.quantity}
+                  {t('dashboard.topProductsQty', { quantity: item.quantity })}
                 </p>
               </div>
               <span className="shrink-0 tabular-nums">

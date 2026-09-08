@@ -6,27 +6,15 @@ import {
   useState,
   type KeyboardEvent,
 } from 'react'
+import { useTranslation } from 'react-i18next'
+import { LOCALE_TO_INTL } from '@/shared/config/i18n'
+import type { AppLocale } from '@/shared/config/appSettings'
 import {
   addUtcDays,
   cn,
   parseIsoDate,
   toIsoDate,
 } from '@/shared/lib'
-
-const WEEKDAYS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'] as const
-
-const MONTH_FORMATTER = new Intl.DateTimeFormat('en-GB', {
-  month: 'long',
-  year: 'numeric',
-  timeZone: 'UTC',
-})
-
-const DAY_FORMATTER = new Intl.DateTimeFormat('en-GB', {
-  day: '2-digit',
-  month: 'short',
-  year: 'numeric',
-  timeZone: 'UTC',
-})
 
 type DatePickerProps = {
   value: string
@@ -76,11 +64,46 @@ export function DatePicker({
   disabled = false,
   className,
 }: DatePickerProps) {
+  const { t, i18n } = useTranslation()
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
   const reactId = useId()
   const panelId = `${reactId}-calendar`
+
+  const intlLocale =
+    LOCALE_TO_INTL[i18n.language as AppLocale] ?? LOCALE_TO_INTL.en
+
+  const monthFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(intlLocale, {
+        month: 'long',
+        year: 'numeric',
+        timeZone: 'UTC',
+      }),
+    [intlLocale],
+  )
+
+  const dayFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(intlLocale, {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        timeZone: 'UTC',
+      }),
+    [intlLocale],
+  )
+
+  const weekdays = [
+    t('datepicker.weekday.mo'),
+    t('datepicker.weekday.tu'),
+    t('datepicker.weekday.we'),
+    t('datepicker.weekday.th'),
+    t('datepicker.weekday.fr'),
+    t('datepicker.weekday.sa'),
+    t('datepicker.weekday.su'),
+  ]
 
   const selected = value ? parseIsoDate(value) : null
   const todayIso = toIsoDate(new Date())
@@ -145,7 +168,9 @@ export function DatePicker({
     }
   }
 
-  const display = selected ? DAY_FORMATTER.format(selected) : 'Select date'
+  const display = selected
+    ? dayFormatter.format(selected)
+    : t('datepicker.placeholder')
 
   return (
     <div ref={rootRef} className={cn('relative w-full', className)}>
@@ -155,7 +180,7 @@ export function DatePicker({
       <button
         type="button"
         disabled={disabled}
-        aria-label={ariaLabel ?? label ?? 'Date'}
+        aria-label={ariaLabel ?? label ?? t('datepicker.calendarAria')}
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-controls={panelId}
@@ -190,7 +215,7 @@ export function DatePicker({
           ref={panelRef}
           id={panelId}
           role="dialog"
-          aria-label={ariaLabel ?? label ?? 'Calendar'}
+          aria-label={ariaLabel ?? label ?? t('datepicker.calendarAria')}
           tabIndex={-1}
           onKeyDown={onPanelKeyDown}
           className="absolute top-full left-0 z-40 mt-1 w-[17.5rem] rounded-md border border-border bg-surface p-3 shadow-overlay outline-none"
@@ -199,7 +224,7 @@ export function DatePicker({
             <button
               type="button"
               className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border text-small hover:border-accent"
-              aria-label="Previous month"
+              aria-label={t('datepicker.prevMonth')}
               onClick={() =>
                 setViewMonth((current) => addUtcMonths(current, -1))
               }
@@ -207,12 +232,12 @@ export function DatePicker({
               ‹
             </button>
             <p className="text-small font-medium">
-              {MONTH_FORMATTER.format(viewMonth)}
+              {monthFormatter.format(viewMonth)}
             </p>
             <button
               type="button"
               className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border text-small hover:border-accent"
-              aria-label="Next month"
+              aria-label={t('datepicker.nextMonth')}
               onClick={() =>
                 setViewMonth((current) => addUtcMonths(current, 1))
               }
@@ -221,8 +246,8 @@ export function DatePicker({
             </button>
           </div>
 
-          <div className="mb-1 grid grid-cols-7 gap-1">
-            {WEEKDAYS.map((day) => (
+          <div className="mb-1 grid grid-cols-7 gap-1" aria-hidden>
+            {weekdays.map((day) => (
               <span
                 key={day}
                 className="text-center text-caption text-text-secondary"
@@ -232,7 +257,7 @@ export function DatePicker({
             ))}
           </div>
 
-          <div className="grid grid-cols-7 gap-1">
+          <div className="grid grid-cols-7 gap-1" role="grid">
             {cells.map((cell) => {
               const isSelected = cell.iso === value
               const isToday = cell.iso === todayIso
@@ -269,7 +294,7 @@ export function DatePicker({
               className="h-8 rounded-md border border-border px-2.5 text-caption hover:border-accent"
               onClick={() => commit(todayIso)}
             >
-              Today
+              {t('datepicker.today')}
             </button>
           </div>
         </div>

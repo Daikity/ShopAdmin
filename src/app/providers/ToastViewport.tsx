@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
 import type { AppDispatch, RootState } from '@/app/store'
 import {
@@ -19,6 +20,7 @@ const toneClass: Record<ToastTone, string> = {
 }
 
 function ToastCard({ item }: { item: ToastItem }) {
+  const { t } = useTranslation()
   const dispatch = useDispatch<AppDispatch>()
   const [visible, setVisible] = useState(false)
   const [leaving, setLeaving] = useState(false)
@@ -63,7 +65,7 @@ function ToastCard({ item }: { item: ToastItem }) {
       <button
         type="button"
         className="text-caption font-medium opacity-70 hover:opacity-100"
-        aria-label="Закрыть уведомление"
+        aria-label={t('toast.dismissAria')}
         onClick={close}
       >
         ×

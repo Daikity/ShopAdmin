@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import {
   Area,
   AreaChart,
@@ -15,15 +16,16 @@ type DashboardRevenueChartProps = {
 }
 
 export function DashboardRevenueChart({ data }: DashboardRevenueChartProps) {
+  const { t } = useTranslation()
   return (
     <div className="rounded-lg border border-border bg-surface p-4 shadow-panel">
-      <h2 className="text-h2">Revenue over time</h2>
+      <h2 className="text-h2">{t('dashboard.chart.revenueTitle')}</h2>
       <p className="mt-1 text-small text-text-secondary">
-        Paid / delivered orders в выбранном периоде
+        {t('dashboard.chart.revenueSubtitle')}
       </p>
       {data.length === 0 ? (
         <p className="py-16 text-center text-small text-text-secondary">
-          Нет данных за период
+          {t('dashboard.chart.revenueEmpty')}
         </p>
       ) : (
         <div className="mt-4 h-64 w-full">

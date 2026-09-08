@@ -16,9 +16,9 @@ export {
   calcMargin,
 } from './model/calc'
 export {
-  bulkPriceSchema,
+  createBulkPriceSchema,
+  createUpdatePriceSchema,
   pricingFiltersSchema,
-  updatePriceSchema,
   type BulkPriceFormValues,
   type PricingFilters,
   type UpdatePriceFormValues,

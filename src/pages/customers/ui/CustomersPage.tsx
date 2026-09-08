@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useDebouncedValue } from '@/shared/lib'
 import { useGetCustomersQuery } from '@/shared/api/customersApi'
 import { PageHeader, QueryState, Select } from '@/shared/ui'
@@ -6,6 +7,7 @@ import { CustomerTable } from '@/widgets/customer-table'
 import { useCustomersFilters } from '../model/useCustomersFilters'
 
 export function CustomersPage() {
+  const { t } = useTranslation()
   const { filters, setFilters, resetFilters } = useCustomersFilters()
   const [searchInput, setSearchInput] = useState(filters.search ?? '')
   const debouncedSearch = useDebouncedValue(searchInput, 300)
@@ -32,8 +34,18 @@ export function CustomersPage() {
 
   const hasActiveFilters = Boolean(filters.search || filters.status)
   const emptyMessage = !hasActiveFilters
-    ? 'Пока нет клиентов'
-    : 'Нет клиентов по текущим фильтрам'
+    ? t('customers.empty')
+    : t('customers.emptyFiltered')
+
+  const statusOptions = useMemo(
+    () => [
+      { value: '', label: t('common.allStatuses') },
+      { value: 'active', label: t('enums.customerStatus.active') },
+      { value: 'blocked', label: t('enums.customerStatus.blocked') },
+      { value: 'invited', label: t('enums.customerStatus.invited') },
+    ],
+    [t],
+  )
 
   function handleSort(field: string) {
     const [currentField, currentOrder] = (
@@ -47,27 +59,22 @@ export function CustomersPage() {
   return (
     <section>
       <PageHeader
-        title="Customers"
-        description="Клиенты, URL-фильтры и карточка с orders / returns / activity."
+        title={t('customers.pageTitle')}
+        description={t('customers.pageDescription')}
       />
 
       <div className="mb-4 grid gap-3 rounded-lg border border-border bg-surface p-3 md:grid-cols-3">
         <input
           value={searchInput}
           onChange={(event) => setSearchInput(event.target.value)}
-          placeholder="Поиск по имени / email"
+          placeholder={t('customers.searchPlaceholder')}
           className="h-10 rounded-md border border-border px-3 text-small"
-          aria-label="Поиск customers"
+          aria-label={t('customers.searchAria')}
         />
         <Select
-          ariaLabel="Status"
+          ariaLabel={t('customers.statusAria')}
           value={filters.status ?? ''}
-          options={[
-            { value: '', label: 'Все статусы' },
-            { value: 'active', label: 'active' },
-            { value: 'blocked', label: 'blocked' },
-            { value: 'invited', label: 'invited' },
-          ]}
+          options={statusOptions}
           onChange={(value) =>
             setFilters({
               status: (value || undefined) as typeof filters.status,
@@ -83,7 +90,7 @@ export function CustomersPage() {
             resetFilters()
           }}
         >
-          Сбросить
+          {t('common.reset')}
         </button>
       </div>
 
@@ -93,7 +100,7 @@ export function CustomersPage() {
         isFetching={isFetching && isSuccess}
         isEmpty={isSuccess && (data?.items.length ?? 0) === 0}
         emptyMessage={emptyMessage}
-        errorMessage="Не удалось загрузить customers"
+        errorMessage={t('customers.loadError')}
       >
         <CustomerTable
           items={data?.items ?? []}
@@ -104,7 +111,11 @@ export function CustomersPage() {
         {data ? (
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-small text-text-secondary">
             <p>
-              {data.total} клиентов · стр. {data.page}/{data.totalPages}
+              {t('customers.pagination', {
+                total: data.total,
+                page: data.page,
+                totalPages: data.totalPages,
+              })}
             </p>
             <div className="flex gap-2">
               <button
@@ -113,7 +124,7 @@ export function CustomersPage() {
                 disabled={data.page <= 1}
                 onClick={() => setFilters({ page: data.page - 1 })}
               >
-                Назад
+                {t('common.prev')}
               </button>
               <button
                 type="button"
@@ -121,7 +132,7 @@ export function CustomersPage() {
                 disabled={data.page >= data.totalPages}
                 onClick={() => setFilters({ page: data.page + 1 })}
               >
-                Далее
+                {t('common.next')}
               </button>
             </div>
           </div>

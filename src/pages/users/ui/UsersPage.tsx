@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ROLE_DEFINITIONS } from '@/entities/role'
 import { useCan } from '@/features/role-switch'
 import { useDebouncedValue } from '@/shared/lib'
@@ -8,6 +9,7 @@ import { UserTable } from '@/widgets/user-table'
 import { useUsersFilters } from '../model/useUsersFilters'
 
 export function UsersPage() {
+  const { t } = useTranslation()
   const canRead = useCan('users.read')
   const { filters, setFilters, resetFilters } = useUsersFilters()
   const [searchInput, setSearchInput] = useState(filters.search ?? '')
@@ -37,9 +39,12 @@ export function UsersPage() {
   if (!canRead) {
     return (
       <section>
-        <PageHeader title="Users" description="Нет доступа (users.read)." />
+        <PageHeader
+          title={t('users.pageTitle')}
+          description={t('users.accessDenied')}
+        />
         <p className="rounded-md border border-border bg-surface p-6 text-small text-text-secondary">
-          Переключите demo role на Admin или Manager.
+          {t('common.accessDeniedSwitchRole')}
         </p>
       </section>
     )
@@ -52,26 +57,28 @@ export function UsersPage() {
   return (
     <section>
       <PageHeader
-        title="Users"
-        description="Пользователи админки. Доступ зависит от Role Switcher."
+        title={t('users.pageTitle')}
+        description={t('users.pageDescription')}
       />
 
       <div className="mb-4 grid gap-3 rounded-lg border border-border bg-surface p-3 md:grid-cols-4">
         <input
           value={searchInput}
           onChange={(event) => setSearchInput(event.target.value)}
-          placeholder="Поиск по имени / email"
+          placeholder={t('users.searchPlaceholder')}
           className="h-10 rounded-md border border-border px-3 text-small"
-          aria-label="Поиск users"
+          aria-label={t('users.searchAria')}
         />
         <Select
-          ariaLabel="Role"
+          ariaLabel={t('users.roleAria')}
           value={filters.role ?? ''}
           options={[
-            { value: '', label: 'Все роли' },
+            { value: '', label: t('users.allRoles') },
             ...ROLE_DEFINITIONS.map((role) => ({
               value: role.id,
-              label: role.name,
+              label: t(`enums.demoRole.${role.id}`, {
+                defaultValue: role.name,
+              }),
             })),
           ]}
           onChange={(value) =>
@@ -82,13 +89,13 @@ export function UsersPage() {
           }
         />
         <Select
-          ariaLabel="Status"
+          ariaLabel={t('users.statusAria')}
           value={filters.status ?? ''}
           options={[
-            { value: '', label: 'Все статусы' },
-            { value: 'active', label: 'active' },
-            { value: 'invited', label: 'invited' },
-            { value: 'disabled', label: 'disabled' },
+            { value: '', label: t('common.allStatuses') },
+            { value: 'active', label: t('enums.userStatus.active') },
+            { value: 'invited', label: t('enums.userStatus.invited') },
+            { value: 'disabled', label: t('enums.userStatus.disabled') },
           ]}
           onChange={(value) =>
             setFilters({
@@ -105,7 +112,7 @@ export function UsersPage() {
             resetFilters()
           }}
         >
-          Сбросить
+          {t('common.reset')}
         </button>
       </div>
 
@@ -115,20 +122,22 @@ export function UsersPage() {
         isFetching={isFetching && isSuccess}
         isEmpty={isSuccess && (data?.items.length ?? 0) === 0}
         emptyMessage={
-          hasActiveFilters
-            ? 'Нет пользователей по фильтрам'
-            : 'Пока нет пользователей'
+          hasActiveFilters ? t('users.emptyFiltered') : t('users.empty')
         }
-        errorMessage="Не удалось загрузить users"
+        errorMessage={t('users.loadError')}
       >
         <UserTable
           items={data?.items ?? []}
-          emptyMessage="Нет пользователей"
+          emptyMessage={t('users.emptyTable')}
         />
         {data ? (
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-small text-text-secondary">
             <p>
-              {data.total} users · стр. {data.page}/{data.totalPages}
+              {t('users.pagination', {
+                total: data.total,
+                page: data.page,
+                totalPages: data.totalPages,
+              })}
             </p>
             <div className="flex gap-2">
               <button
@@ -137,7 +146,7 @@ export function UsersPage() {
                 disabled={data.page <= 1}
                 onClick={() => setFilters({ page: data.page - 1 })}
               >
-                Назад
+                {t('common.prev')}
               </button>
               <button
                 type="button"
@@ -145,7 +154,7 @@ export function UsersPage() {
                 disabled={data.page >= data.totalPages}
                 onClick={() => setFilters({ page: data.page + 1 })}
               >
-                Далее
+                {t('common.next')}
               </button>
             </div>
           </div>

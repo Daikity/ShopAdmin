@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 
 type QueryStateProps = {
   isLoading: boolean
@@ -17,16 +18,20 @@ export function QueryState({
   isError,
   isEmpty = false,
   isFetching = false,
-  errorMessage = 'Не удалось загрузить данные',
-  emptyMessage = 'Нет данных',
+  errorMessage,
+  emptyMessage,
   loadingFallback,
   children,
 }: QueryStateProps) {
+  const { t } = useTranslation()
+  const resolvedError = errorMessage ?? t('common.loadError')
+  const resolvedEmpty = emptyMessage ?? t('common.empty')
+
   if (isLoading) {
     return (
       loadingFallback ?? (
         <div className="rounded-md border border-border bg-surface p-6 text-small text-text-secondary">
-          Загрузка…
+          {t('common.loading')}
         </div>
       )
     )
@@ -38,7 +43,7 @@ export function QueryState({
         className="rounded-md border border-danger/30 bg-danger/5 p-6 text-small text-danger"
         role="alert"
       >
-        {errorMessage}
+        {resolvedError}
       </div>
     )
   }
@@ -46,16 +51,16 @@ export function QueryState({
   if (isEmpty) {
     return (
       <div className="rounded-md border border-border bg-surface p-6 text-small text-text-secondary">
-        {emptyMessage}
+        {resolvedEmpty}
       </div>
     )
   }
 
   return (
-    <div className="relative">
+    <div className="relative" aria-busy={isFetching || undefined}>
       {isFetching ? (
         <p className="absolute top-0 right-0 text-caption text-text-secondary">
-          Обновление…
+          {t('common.updating')}
         </p>
       ) : null}
       {children}

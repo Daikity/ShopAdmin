@@ -1,7 +1,9 @@
+import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useTranslation } from 'react-i18next'
 import type { PriceListItem, UpdatePriceFormValues } from '@/entities/pricing'
-import { updatePriceSchema } from '@/entities/pricing'
+import { createUpdatePriceSchema } from '@/entities/pricing'
 import { notifyToast } from '@/shared/lib'
 import { useUpdatePriceMutation } from '@/shared/api/pricingApi'
 
@@ -11,9 +13,11 @@ type EditPriceDialogProps = {
 }
 
 export function EditPriceDialog({ item, onClose }: EditPriceDialogProps) {
+  const { t } = useTranslation()
+  const schema = useMemo(() => createUpdatePriceSchema(t), [t])
   const [updatePrice, { isLoading }] = useUpdatePriceMutation()
   const form = useForm<UpdatePriceFormValues>({
-    resolver: zodResolver(updatePriceSchema),
+    resolver: zodResolver(schema),
     values: item
       ? {
           price: item.price,
@@ -34,10 +38,13 @@ export function EditPriceDialog({ item, onClose }: EditPriceDialogProps) {
         price: values.price,
         compareAtPrice: values.compareAtPrice,
       }).unwrap()
-      notifyToast({ tone: 'success', message: `${item!.sku}: price updated` })
+      notifyToast({
+        tone: 'success',
+        message: t('pricing.toast.updated', { sku: item!.sku }),
+      })
       onClose()
     } catch {
-      notifyToast({ tone: 'error', message: 'Price update failed' })
+      notifyToast({ tone: 'error', message: t('pricing.toast.failed') })
     }
   }
 
@@ -50,14 +57,14 @@ export function EditPriceDialog({ item, onClose }: EditPriceDialogProps) {
     >
       <div className="w-full max-w-md rounded-lg border border-border bg-surface p-5 shadow-overlay">
         <h2 id="edit-price-title" className="text-h2">
-          Edit price
+          {t('pricing.editTitle')}
         </h2>
         <p className="mt-1 text-small text-text-secondary">
           {item.productName} · {item.sku}
         </p>
         <form className="mt-4 space-y-3" onSubmit={form.handleSubmit(submit)}>
           <label className="block text-small">
-            Current price (€)
+            {t('pricing.editPriceLabel')}
             <input
               type="number"
               step="0.01"
@@ -66,14 +73,18 @@ export function EditPriceDialog({ item, onClose }: EditPriceDialogProps) {
             />
           </label>
           <label className="block text-small">
-            Compare-at (€)
+            {t('pricing.editCompareLabel')}
             <input
               type="number"
               step="0.01"
               className="mt-1 h-10 w-full rounded-md border border-border px-3"
               {...form.register('compareAtPrice', {
                 setValueAs: (value) => {
-                  if (value === '' || value === null || Number.isNaN(Number(value))) {
+                  if (
+                    value === '' ||
+                    value === null ||
+                    Number.isNaN(Number(value))
+                  ) {
                     return null
                   }
                   return Number(value)
@@ -87,14 +98,14 @@ export function EditPriceDialog({ item, onClose }: EditPriceDialogProps) {
               className="rounded-md border border-border px-3 py-2 text-small"
               onClick={onClose}
             >
-              Отмена
+              {t('common.cancel')}
             </button>
             <button
               type="submit"
               disabled={isLoading}
               className="rounded-md bg-accent px-3 py-2 text-small font-semibold text-accent-foreground disabled:opacity-60"
             >
-              {isLoading ? 'Saving…' : 'Save'}
+              {isLoading ? t('pricing.editSaving') : t('pricing.editSave')}
             </button>
           </div>
         </form>

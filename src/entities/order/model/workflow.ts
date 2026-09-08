@@ -28,15 +28,6 @@ const ACTION_TO_STATUS: Record<OrderAction, OrderStatus> = {
   refund: 'refunded',
 }
 
-const ACTION_LABELS: Record<OrderAction, string> = {
-  confirm: 'Confirm order',
-  cancel: 'Cancel order',
-  start_fulfillment: 'Start fulfillment',
-  ship: 'Mark as shipped',
-  deliver: 'Mark as delivered',
-  refund: 'Refund order',
-}
-
 export function canChangeOrderStatus(
   currentStatus: OrderStatus,
   nextStatus: OrderStatus,
@@ -67,10 +58,6 @@ export function getAvailableOrderActions(
   return (Object.keys(ACTION_TO_STATUS) as OrderAction[]).filter((action) =>
     canPerformOrderAction(currentStatus, action),
   )
-}
-
-export function getOrderActionLabel(action: OrderAction): string {
-  return ACTION_LABELS[action]
 }
 
 export function isDestructiveOrderAction(action: OrderAction): boolean {

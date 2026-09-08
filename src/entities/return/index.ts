@@ -11,7 +11,6 @@ export {
   canPerformReturnAction,
   getAllowedNextReturnStatuses,
   getAvailableReturnActions,
-  getReturnActionLabel,
   isDestructiveReturnAction,
   resolveReturnActionStatus,
   type ReturnAction,

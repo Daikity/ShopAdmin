@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import {
   Area,
   AreaChart,
@@ -15,13 +16,16 @@ type ReportsRevenueChartProps = {
 }
 
 export function ReportsRevenueChart({ data }: ReportsRevenueChartProps) {
+  const { t } = useTranslation()
   return (
     <div className="rounded-lg border border-border bg-surface p-4 shadow-panel">
-      <h2 className="text-h2">Revenue</h2>
-      <p className="mt-1 text-small text-text-secondary">Area chart по датам</p>
+      <h2 className="text-h2">{t('reports.chart.revenueTitle')}</h2>
+      <p className="mt-1 text-small text-text-secondary">
+        {t('reports.chart.revenueSubtitle')}
+      </p>
       {data.length === 0 ? (
         <p className="py-16 text-center text-small text-text-secondary">
-          Нет данных
+          {t('reports.chart.empty')}
         </p>
       ) : (
         <div className="mt-4 h-64 w-full">

@@ -5,6 +5,7 @@ import {
   useState,
   type KeyboardEvent,
 } from 'react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib'
 
 export type SelectOption = {
@@ -27,11 +28,13 @@ export function Select({
   options,
   value,
   onChange,
-  placeholder = 'Выберите',
+  placeholder,
   ariaLabel,
   disabled = false,
   className,
 }: SelectProps) {
+  const { t } = useTranslation()
+  const resolvedPlaceholder = placeholder ?? t('common.select')
   const [open, setOpen] = useState(false)
   const [activeIndex, setActiveIndex] = useState(0)
   const rootRef = useRef<HTMLDivElement>(null)
@@ -40,7 +43,7 @@ export function Select({
   const listboxId = `${reactId}-listbox`
 
   const selected = options.find((option) => option.value === value)
-  const displayLabel = selected?.label ?? placeholder
+  const displayLabel = selected?.label ?? resolvedPlaceholder
 
   function openList() {
     const index = options.findIndex((option) => option.value === value)

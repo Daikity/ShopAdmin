@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { BulkPriceMode, PriceListItem } from '@/entities/pricing'
 import { buildBulkPricePreview } from '@/entities/pricing'
-import { notifyToast } from '@/shared/lib'
+import { formatMoney, notifyToast } from '@/shared/lib'
 import { useBulkUpdatePricesMutation } from '@/shared/api/pricingApi'
 import { ConfirmDialog, Select } from '@/shared/ui'
 
@@ -16,6 +17,7 @@ export function PriceBulkBar({
   selectedItems,
   onClearSelection,
 }: PriceBulkBarProps) {
+  const { t } = useTranslation()
   const [mode, setMode] = useState<BulkPriceMode>('percent')
   const [value, setValue] = useState(7)
   const [showPreview, setShowPreview] = useState(false)
@@ -38,13 +40,16 @@ export function PriceBulkBar({
       }).unwrap()
       notifyToast({
         tone: 'success',
-        message: `${result.updated} prices updated`,
+        message: t('pricing.bulk.toast.success', { updated: result.updated }),
       })
       setConfirmOpen(false)
       setShowPreview(false)
       onClearSelection()
     } catch {
-      notifyToast({ tone: 'error', message: 'Bulk price update failed' })
+      notifyToast({
+        tone: 'error',
+        message: t('pricing.bulk.toast.failed'),
+      })
       setConfirmOpen(false)
     }
   }
@@ -52,23 +57,25 @@ export function PriceBulkBar({
   return (
     <div className="mb-4 space-y-3">
       <div className="flex flex-wrap items-end gap-2 rounded-lg border border-accent/30 bg-accent/5 p-3">
-        <p className="mr-2 text-small font-medium">
-          Selected: {selectedIds.length}
+        <p className="mr-2 text-small font-medium" aria-live="polite">
+          {t('pricing.bulk.selected', { count: selectedIds.length })}
         </p>
         <div className="min-w-36">
-          <p className="mb-1 text-caption text-text-secondary">Mode</p>
+          <p className="mb-1 text-caption text-text-secondary">
+            {t('pricing.bulk.mode')}
+          </p>
           <Select
-            ariaLabel="Bulk price mode"
+            ariaLabel={t('pricing.bulk.modeAria')}
             value={mode}
             options={[
-              { value: 'percent', label: 'Percent %' },
-              { value: 'fixed', label: 'Fixed €' },
+              { value: 'percent', label: t('pricing.bulk.modePercent') },
+              { value: 'fixed', label: t('pricing.bulk.modeFixed') },
             ]}
             onChange={(next) => setMode(next as BulkPriceMode)}
           />
         </div>
         <label className="text-caption text-text-secondary">
-          Value
+          {t('pricing.bulk.value')}
           <input
             type="number"
             className="mt-1 h-10 w-28 rounded-md border border-border bg-surface px-3 text-small text-text-primary"
@@ -82,32 +89,36 @@ export function PriceBulkBar({
           onClick={() => setShowPreview(true)}
           disabled={value === 0}
         >
-          Preview
+          {t('pricing.bulk.preview')}
         </button>
         <button
           type="button"
           className="ml-auto rounded-md px-2.5 py-1.5 text-small text-text-secondary underline"
           onClick={onClearSelection}
         >
-          Clear
+          {t('pricing.bulk.clear')}
         </button>
       </div>
 
       {showPreview ? (
         <div className="rounded-lg border border-border bg-surface p-3">
           <p className="text-small font-medium">
-            Old total: €{preview.oldTotal.toFixed(2)} → New total: €
-            {preview.newTotal.toFixed(2)}
+            {t('pricing.bulk.oldNewTotal', {
+              old: formatMoney(preview.oldTotal),
+              new: formatMoney(preview.newTotal),
+            })}
           </p>
           <ul className="mt-2 max-h-40 space-y-1 overflow-y-auto text-small text-text-secondary">
             {preview.items.slice(0, 8).map((item) => (
               <li key={item.id}>
-                {item.sku}: €{item.oldPrice.toFixed(2)} → €
-                {item.newPrice.toFixed(2)}
+                {item.sku}: {formatMoney(item.oldPrice)} →{' '}
+                {formatMoney(item.newPrice)}
               </li>
             ))}
             {preview.items.length > 8 ? (
-              <li>…и ещё {preview.items.length - 8}</li>
+              <li>
+                {t('common.andMore', { count: preview.items.length - 8 })}
+              </li>
             ) : null}
           </ul>
           <div className="mt-3 flex gap-2">
@@ -116,14 +127,14 @@ export function PriceBulkBar({
               className="rounded-md bg-accent px-3 py-2 text-small font-semibold text-accent-foreground"
               onClick={() => setConfirmOpen(true)}
             >
-              Apply
+              {t('pricing.bulk.apply')}
             </button>
             <button
               type="button"
               className="rounded-md border border-border px-3 py-2 text-small"
               onClick={() => setShowPreview(false)}
             >
-              Cancel
+              {t('pricing.bulk.cancel')}
             </button>
           </div>
         </div>
@@ -131,8 +142,11 @@ export function PriceBulkBar({
 
       <ConfirmDialog
         open={confirmOpen}
-        title="Применить bulk pricing?"
-        description={`Обновить цены у ${preview.count} товаров. Новый total €${preview.newTotal.toFixed(2)}.`}
+        title={t('pricing.bulk.confirmTitle')}
+        description={t('pricing.bulk.confirmDescription', {
+          count: preview.count,
+          total: formatMoney(preview.newTotal),
+        })}
         isPending={isLoading}
         onCancel={() => setConfirmOpen(false)}
         onConfirm={() => void apply()}

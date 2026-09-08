@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useCan } from '@/features/role-switch'
 import { useGetAuditLogQuery } from '@/shared/api/auditApi'
 import { DatePicker, PageHeader, QueryState } from '@/shared/ui'
@@ -6,6 +7,7 @@ import { AuditTable } from '@/widgets/audit-table'
 import { useAuditFilters } from '../model/useAuditFilters'
 
 export function AuditLogPage() {
+  const { t } = useTranslation()
   const canRead = useCan('audit.read')
   const { filters, setFilters, resetFilters } = useAuditFilters()
 
@@ -28,9 +30,12 @@ export function AuditLogPage() {
   if (!canRead) {
     return (
       <section>
-        <PageHeader title="Audit Log" description="Нет доступа (audit.read)." />
+        <PageHeader
+          title={t('audit.pageTitle')}
+          description={t('audit.accessDenied')}
+        />
         <p className="rounded-md border border-border bg-surface p-6 text-small text-text-secondary">
-          Переключите demo role на Admin, Manager или Analyst.
+          {t('audit.accessDeniedHint')}
         </p>
       </section>
     )
@@ -47,13 +52,13 @@ export function AuditLogPage() {
   return (
     <section>
       <PageHeader
-        title="Audit Log"
-        description="Журнал мутаций MSW. Фильтры сохраняются в URL."
+        title={t('audit.pageTitle')}
+        description={t('audit.pageDescription')}
       />
 
       <div className="mb-4 grid items-end gap-3 rounded-lg border border-border bg-surface p-3 md:grid-cols-2 xl:grid-cols-3">
         <label className="block space-y-1 text-small">
-          <span className="text-text-secondary">User</span>
+          <span className="text-text-secondary">{t('audit.filter.user')}</span>
           <input
             value={filters.user ?? ''}
             onChange={(event) =>
@@ -62,13 +67,13 @@ export function AuditLogPage() {
                 page: 1,
               })
             }
-            placeholder="Имя пользователя"
+            placeholder={t('audit.filter.userPlaceholder')}
             className="h-10 w-full rounded-md border border-border px-3 text-small"
-            aria-label="Filter by user"
+            aria-label={t('audit.filter.userAria')}
           />
         </label>
         <label className="block space-y-1 text-small">
-          <span className="text-text-secondary">Action</span>
+          <span className="text-text-secondary">{t('audit.filter.action')}</span>
           <input
             value={filters.action ?? ''}
             onChange={(event) =>
@@ -77,13 +82,13 @@ export function AuditLogPage() {
                 page: 1,
               })
             }
-            placeholder="Например inventory.adjust"
+            placeholder={t('audit.filter.actionPlaceholder')}
             className="h-10 w-full rounded-md border border-border px-3 text-small"
-            aria-label="Filter by action"
+            aria-label={t('audit.filter.actionAria')}
           />
         </label>
         <label className="block space-y-1 text-small">
-          <span className="text-text-secondary">Entity</span>
+          <span className="text-text-secondary">{t('audit.filter.entity')}</span>
           <input
             value={filters.entity ?? ''}
             onChange={(event) =>
@@ -92,18 +97,18 @@ export function AuditLogPage() {
                 page: 1,
               })
             }
-            placeholder="order / product / return"
+            placeholder={t('audit.filter.entityPlaceholder')}
             className="h-10 w-full rounded-md border border-border px-3 text-small"
-            aria-label="Filter by entity"
+            aria-label={t('audit.filter.entityAria')}
           />
         </label>
         <DatePicker
-          label="From"
+          label={t('common.from')}
           value={filters.from ?? ''}
           onChange={(from) => setFilters({ from: from || undefined, page: 1 })}
         />
         <DatePicker
-          label="To"
+          label={t('common.to')}
           value={filters.to ?? ''}
           onChange={(to) => setFilters({ to: to || undefined, page: 1 })}
         />
@@ -112,7 +117,7 @@ export function AuditLogPage() {
           className="h-10 rounded-md border border-border px-3 text-small"
           onClick={() => resetFilters()}
         >
-          Сбросить
+          {t('common.reset')}
         </button>
       </div>
 
@@ -122,17 +127,22 @@ export function AuditLogPage() {
         isFetching={isFetching && isSuccess}
         isEmpty={isSuccess && (data?.items.length ?? 0) === 0}
         emptyMessage={
-          hasActiveFilters
-            ? 'Нет записей по фильтрам'
-            : 'Audit log пуст — выполните мутацию (inventory/pricing/returns)'
+          hasActiveFilters ? t('audit.emptyFiltered') : t('audit.empty')
         }
-        errorMessage="Не удалось загрузить audit log"
+        errorMessage={t('audit.loadError')}
       >
-        <AuditTable items={data?.items ?? []} emptyMessage="Нет записей" />
+        <AuditTable
+          items={data?.items ?? []}
+          emptyMessage={t('audit.emptyTable')}
+        />
         {data ? (
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-small text-text-secondary">
             <p>
-              {data.total} events · стр. {data.page}/{data.totalPages}
+              {t('audit.pagination', {
+                total: data.total,
+                page: data.page,
+                totalPages: data.totalPages,
+              })}
             </p>
             <div className="flex gap-2">
               <button
@@ -141,7 +151,7 @@ export function AuditLogPage() {
                 disabled={data.page <= 1}
                 onClick={() => setFilters({ page: data.page - 1 })}
               >
-                Назад
+                {t('common.prev')}
               </button>
               <button
                 type="button"
@@ -149,7 +159,7 @@ export function AuditLogPage() {
                 disabled={data.page >= data.totalPages}
                 onClick={() => setFilters({ page: data.page + 1 })}
               >
-                Далее
+                {t('common.next')}
               </button>
             </div>
           </div>

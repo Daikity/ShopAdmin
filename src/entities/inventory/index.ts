@@ -13,7 +13,7 @@ export {
   resolveStockStatus,
 } from './model/stock'
 export {
-  adjustStockSchema,
+  createAdjustStockSchema,
   inventoryFiltersSchema,
   type AdjustStockFormValues,
   type InventoryFilters,

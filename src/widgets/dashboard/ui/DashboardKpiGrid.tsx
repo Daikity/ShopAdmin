@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import type { DashboardKpis } from '@/entities/dashboard'
 import { formatMoney, formatPercent } from '@/shared/lib'
 
@@ -15,14 +16,21 @@ function KpiCard({ label, value }: { label: string; value: string }) {
 }
 
 export function DashboardKpiGrid({ kpis }: DashboardKpiGridProps) {
+  const { t } = useTranslation()
   return (
     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-      <KpiCard label="Revenue" value={formatMoney(kpis.revenue)} />
-      <KpiCard label="Orders" value={String(kpis.orders)} />
-      <KpiCard label="AOV" value={formatMoney(kpis.aov)} />
-      <KpiCard label="Conversion" value={formatPercent(kpis.conversion)} />
-      <KpiCard label="Refunds" value={formatMoney(kpis.refunds)} />
-      <KpiCard label="Low Stock" value={String(kpis.lowStock)} />
+      <KpiCard label={t('dashboard.kpi.revenue')} value={formatMoney(kpis.revenue)} />
+      <KpiCard label={t('dashboard.kpi.orders')} value={String(kpis.orders)} />
+      <KpiCard label={t('dashboard.kpi.aov')} value={formatMoney(kpis.aov)} />
+      <KpiCard
+        label={t('dashboard.kpi.conversion')}
+        value={formatPercent(kpis.conversion)}
+      />
+      <KpiCard
+        label={t('dashboard.kpi.refunds')}
+        value={formatMoney(kpis.refunds)}
+      />
+      <KpiCard label={t('dashboard.kpi.lowStock')} value={String(kpis.lowStock)} />
     </div>
   )
 }

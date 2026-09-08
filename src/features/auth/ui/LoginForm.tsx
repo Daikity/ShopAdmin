@@ -1,8 +1,10 @@
 import { useState, type FormEvent } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { login as establishSession, validateCredentials } from '../model/session'
 
 export function LoginForm() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
   const [loginValue, setLoginValue] = useState('')
@@ -21,7 +23,7 @@ export function LoginForm() {
     event.preventDefault()
 
     if (!validateCredentials(loginValue.trim(), password)) {
-      setError('Неверный логин или пароль')
+      setError(t('auth.errorInvalid'))
       return
     }
 
@@ -32,7 +34,9 @@ export function LoginForm() {
   return (
     <form className="flex w-full flex-col gap-4" onSubmit={handleSubmit}>
       <label className="flex flex-col gap-1.5">
-        <span className="text-small font-medium text-text-primary">Логин</span>
+        <span className="text-small font-medium text-text-primary">
+          {t('auth.loginLabel')}
+        </span>
         <input
           name="login"
           autoComplete="username"
@@ -42,12 +46,14 @@ export function LoginForm() {
             setError('')
           }}
           className="rounded-md border border-border bg-surface px-3 py-2 text-body text-text-primary"
-          placeholder="admin"
+          placeholder={t('auth.loginPlaceholder')}
         />
       </label>
 
       <label className="flex flex-col gap-1.5">
-        <span className="text-small font-medium text-text-primary">Пароль</span>
+        <span className="text-small font-medium text-text-primary">
+          {t('auth.passwordLabel')}
+        </span>
         <input
           name="password"
           type="password"
@@ -58,7 +64,7 @@ export function LoginForm() {
             setError('')
           }}
           className="rounded-md border border-border bg-surface px-3 py-2 text-body text-text-primary"
-          placeholder="admin"
+          placeholder={t('auth.passwordPlaceholder')}
         />
       </label>
 
@@ -72,7 +78,7 @@ export function LoginForm() {
         type="submit"
         className="rounded-md bg-accent px-4 py-2.5 text-small font-semibold text-accent-foreground hover:bg-accent-hover"
       >
-        Войти
+        {t('auth.submit')}
       </button>
     </form>
   )

@@ -1,5 +1,7 @@
+import { useTranslation } from 'react-i18next'
 import type { InventoryListItem } from '@/entities/inventory'
 import { useCan } from '@/features/role-switch'
+import { formatDate } from '@/shared/lib'
 import {
   DataTable,
   TBody,
@@ -43,12 +45,6 @@ function SortButton({
   )
 }
 
-function stockLabel(status: InventoryListItem['stockStatus']) {
-  if (status === 'in_stock') return 'In stock'
-  if (status === 'low_stock') return 'Low stock'
-  return 'Out of stock'
-}
-
 export function InventoryTable({
   items,
   emptyMessage,
@@ -56,6 +52,7 @@ export function InventoryTable({
   sort,
   onAdjust,
 }: InventoryTableProps) {
+  const { t } = useTranslation()
   const canAdjust = useCan('inventory.write')
   return (
     <DataTable>
@@ -63,36 +60,41 @@ export function InventoryTable({
         <TR>
           <TH>
             <SortButton
-              label="Product"
+              label={t('inventory.table.product')}
               field="productName"
               sort={sort}
               onSort={onSort}
             />
           </TH>
           <TH>
-            <SortButton label="SKU" field="sku" sort={sort} onSort={onSort} />
+            <SortButton
+              label={t('inventory.table.sku')}
+              field="sku"
+              sort={sort}
+              onSort={onSort}
+            />
           </TH>
-          <TH>Warehouse</TH>
+          <TH>{t('inventory.table.warehouse')}</TH>
           <TH>
             <SortButton
-              label="Available"
+              label={t('inventory.table.available')}
               field="available"
               sort={sort}
               onSort={onSort}
             />
           </TH>
-          <TH>Reserved</TH>
-          <TH>Incoming</TH>
-          <TH>Stock</TH>
+          <TH>{t('inventory.table.reserved')}</TH>
+          <TH>{t('inventory.table.incoming')}</TH>
+          <TH>{t('inventory.table.stock')}</TH>
           <TH>
             <SortButton
-              label="Updated"
+              label={t('inventory.table.updated')}
               field="updatedAt"
               sort={sort}
               onSort={onSort}
             />
           </TH>
-          <TH>Actions</TH>
+          <TH>{t('inventory.table.actions')}</TH>
         </TR>
       </THead>
       <TBody>
@@ -101,28 +103,40 @@ export function InventoryTable({
         ) : (
           items.map((item) => (
             <TR key={item.id}>
-              <TD className="font-medium">{item.productName}</TD>
-              <TD className="text-small text-text-secondary">{item.sku}</TD>
-              <TD>{item.warehouseName}</TD>
-              <TD>{item.available}</TD>
-              <TD>{item.reserved}</TD>
-              <TD>{item.incoming}</TD>
-              <TD>
+              <TD label={t('inventory.table.product')} className="font-medium">
+                {item.productName}
+              </TD>
+              <TD
+                label={t('inventory.table.sku')}
+                className="text-small text-text-secondary"
+              >
+                {item.sku}
+              </TD>
+              <TD label={t('inventory.table.warehouse')}>
+                {item.warehouseName}
+              </TD>
+              <TD label={t('inventory.table.available')}>{item.available}</TD>
+              <TD label={t('inventory.table.reserved')}>{item.reserved}</TD>
+              <TD label={t('inventory.table.incoming')}>{item.incoming}</TD>
+              <TD label={t('inventory.table.stock')}>
                 <span className="rounded-md bg-surface-muted px-2 py-0.5 text-caption">
-                  {stockLabel(item.stockStatus)}
+                  {t(`enums.stockStatus.${item.stockStatus}`)}
                 </span>
               </TD>
-              <TD className="text-small text-text-secondary">
-                {new Date(item.updatedAt).toLocaleDateString('ru-RU')}
+              <TD
+                label={t('inventory.table.updated')}
+                className="text-small text-text-secondary"
+              >
+                {formatDate(item.updatedAt)}
               </TD>
-              <TD>
+              <TD label={t('inventory.table.actions')}>
                 {canAdjust ? (
                   <button
                     type="button"
                     className="text-small font-medium text-accent hover:underline"
                     onClick={() => onAdjust(item)}
                   >
-                    Adjust
+                    {t('inventory.adjust')}
                   </button>
                 ) : (
                   <span className="text-caption text-text-secondary">—</span>

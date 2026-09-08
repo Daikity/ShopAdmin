@@ -1,4 +1,6 @@
+import { useTranslation } from 'react-i18next'
 import { ReturnStatusActions } from '@/features/return-change-status'
+import { formatMoney } from '@/shared/lib'
 import { useGetReturnQuery } from '@/shared/api/returnsApi'
 import { QueryState } from '@/shared/ui'
 
@@ -11,6 +13,7 @@ export function ReturnDetailsDrawer({
   returnId,
   onClose,
 }: ReturnDetailsDrawerProps) {
+  const { t } = useTranslation()
   const { data, isLoading, isError, isFetching, isSuccess } = useGetReturnQuery(
     returnId ?? '',
     { skip: !returnId },
@@ -23,7 +26,7 @@ export function ReturnDetailsDrawer({
       <button
         type="button"
         className="absolute inset-0"
-        aria-label="Закрыть"
+        aria-label={t('returns.drawer.closeAria')}
         onClick={onClose}
       />
       <aside
@@ -35,12 +38,12 @@ export function ReturnDetailsDrawer({
         <div className="flex items-start justify-between border-b border-border p-4">
           <div>
             <h2 id="return-drawer-title" className="text-h2">
-              {data?.number ?? 'Return'}
+              {data?.number ?? t('returns.drawer.fallbackTitle')}
             </h2>
             <p className="text-small text-text-secondary">
               {data
                 ? `${data.orderNumber} · ${data.customerName}`
-                : 'Детали возврата'}
+                : t('returns.drawer.fallbackDescription')}
             </p>
           </div>
           <button
@@ -48,7 +51,7 @@ export function ReturnDetailsDrawer({
             className="rounded-md border border-border px-2 py-1 text-small"
             onClick={onClose}
           >
-            Закрыть
+            {t('returns.drawer.close')}
           </button>
         </div>
 
@@ -57,30 +60,40 @@ export function ReturnDetailsDrawer({
             isLoading={isLoading}
             isError={isError}
             isFetching={isFetching && isSuccess}
-            errorMessage="Возврат не найден"
+            errorMessage={t('returns.drawer.loadError')}
           >
             {data ? (
               <div className="space-y-4">
                 <div className="rounded-lg border border-border p-3 text-small">
                   <p>
-                    <span className="text-text-secondary">Product:</span>{' '}
+                    <span className="text-text-secondary">
+                      {t('returns.drawer.product')}:
+                    </span>{' '}
                     {data.productName}
                   </p>
                   <p className="mt-1">
-                    <span className="text-text-secondary">Reason:</span>{' '}
+                    <span className="text-text-secondary">
+                      {t('returns.drawer.reason')}:
+                    </span>{' '}
                     {data.reason}
                   </p>
                   <p className="mt-1">
-                    <span className="text-text-secondary">Amount:</span> €
-                    {data.amount.toFixed(2)}
+                    <span className="text-text-secondary">
+                      {t('returns.drawer.amount')}:
+                    </span>{' '}
+                    {formatMoney(data.amount)}
                   </p>
-                  <p className="mt-1 capitalize">
-                    <span className="text-text-secondary">Status:</span>{' '}
-                    {data.status}
+                  <p className="mt-1">
+                    <span className="text-text-secondary">
+                      {t('returns.drawer.status')}:
+                    </span>{' '}
+                    {t(`enums.returnStatus.${data.status}`)}
                   </p>
                   {data.note ? (
                     <p className="mt-1">
-                      <span className="text-text-secondary">Note:</span>{' '}
+                      <span className="text-text-secondary">
+                        {t('returns.drawer.note')}:
+                      </span>{' '}
                       {data.note}
                     </p>
                   ) : null}
@@ -88,7 +101,7 @@ export function ReturnDetailsDrawer({
 
                 <div>
                   <h3 className="mb-2 text-small font-semibold text-text-secondary">
-                    Actions
+                    {t('returns.drawer.actions')}
                   </h3>
                   <ReturnStatusActions item={data} />
                 </div>

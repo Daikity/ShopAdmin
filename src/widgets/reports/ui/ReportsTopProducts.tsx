@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import type { ReportTopProduct } from '@/entities/report'
 import { formatMoney } from '@/shared/lib'
 
@@ -7,22 +8,31 @@ type ReportsTopProductsProps = {
 }
 
 export function ReportsTopProducts({ items }: ReportsTopProductsProps) {
+  const { t } = useTranslation()
   return (
     <div className="rounded-lg border border-border bg-surface p-4 shadow-panel">
-      <h2 className="text-h2">Top products</h2>
-      <p className="mt-1 text-small text-text-secondary">По выручке</p>
+      <h2 className="text-h2">{t('reports.topProductsTitle')}</h2>
+      <p className="mt-1 text-small text-text-secondary">
+        {t('reports.topProductsSubtitle')}
+      </p>
       {items.length === 0 ? (
         <p className="py-10 text-center text-small text-text-secondary">
-          Нет данных
+          {t('reports.chart.empty')}
         </p>
       ) : (
         <div className="mt-4 overflow-x-auto">
           <table className="w-full min-w-[320px] text-left text-small">
             <thead className="text-caption text-text-secondary">
               <tr className="border-b border-border">
-                <th className="py-2 font-medium">Product</th>
-                <th className="py-2 font-medium">Qty</th>
-                <th className="py-2 text-right font-medium">Revenue</th>
+                <th className="py-2 font-medium">
+                  {t('reports.topProducts.col.product')}
+                </th>
+                <th className="py-2 font-medium">
+                  {t('reports.topProducts.col.qty')}
+                </th>
+                <th className="py-2 text-right font-medium">
+                  {t('reports.topProducts.col.revenue')}
+                </th>
               </tr>
             </thead>
             <tbody>

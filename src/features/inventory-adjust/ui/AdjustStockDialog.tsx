@@ -1,8 +1,12 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import type { AdjustStockFormValues, InventoryListItem } from '@/entities/inventory'
-import { adjustStockSchema } from '@/entities/inventory'
+import { useTranslation } from 'react-i18next'
+import type {
+  AdjustStockFormValues,
+  InventoryListItem,
+} from '@/entities/inventory'
+import { createAdjustStockSchema } from '@/entities/inventory'
 import { notifyToast } from '@/shared/lib'
 import { useAdjustStockMutation } from '@/shared/api/inventoryApi'
 import { ConfirmDialog } from '@/shared/ui'
@@ -13,10 +17,12 @@ type AdjustStockDialogProps = {
 }
 
 export function AdjustStockDialog({ item, onClose }: AdjustStockDialogProps) {
+  const { t } = useTranslation()
+  const schema = useMemo(() => createAdjustStockSchema(t), [t])
   const [adjustStock, { isLoading }] = useAdjustStockMutation()
   const [confirmOpen, setConfirmOpen] = useState(false)
   const form = useForm<AdjustStockFormValues>({
-    resolver: zodResolver(adjustStockSchema),
+    resolver: zodResolver(schema),
     values: { adjustment: -1, reason: '' },
   })
   const adjustment = useWatch({ control: form.control, name: 'adjustment' })
@@ -34,14 +40,14 @@ export function AdjustStockDialog({ item, onClose }: AdjustStockDialogProps) {
       }).unwrap()
       notifyToast({
         tone: 'success',
-        message: `${item!.sku}: stock adjusted`,
+        message: t('inventory.toast.success', { sku: item!.sku }),
       })
       setConfirmOpen(false)
       onClose()
     } catch {
       notifyToast({
         tone: 'error',
-        message: `${item!.sku}: adjust failed (rollback)`,
+        message: t('inventory.toast.failed', { sku: item!.sku }),
       })
       setConfirmOpen(false)
     }
@@ -57,14 +63,16 @@ export function AdjustStockDialog({ item, onClose }: AdjustStockDialogProps) {
       >
         <div className="w-full max-w-md rounded-lg border border-border bg-surface p-5 shadow-overlay">
           <h2 id="adjust-stock-title" className="text-h2">
-            Adjust stock
+            {t('inventory.adjustTitle')}
           </h2>
           <p className="mt-1 text-small text-text-secondary">
             {item.productName} · {item.warehouseName}
           </p>
           <p className="mt-3 text-small">
-            Current: <strong>{item.available}</strong> → next:{' '}
-            <strong>{nextAvailable}</strong>
+            {t('inventory.adjustCurrentNext', {
+              current: item.available,
+              next: nextAvailable,
+            })}
           </p>
 
           <form
@@ -72,7 +80,7 @@ export function AdjustStockDialog({ item, onClose }: AdjustStockDialogProps) {
             onSubmit={form.handleSubmit(() => setConfirmOpen(true))}
           >
             <label className="block text-small">
-              Adjustment
+              {t('inventory.adjustmentLabel')}
               <input
                 type="number"
                 className="mt-1 h-10 w-full rounded-md border border-border px-3"
@@ -85,10 +93,10 @@ export function AdjustStockDialog({ item, onClose }: AdjustStockDialogProps) {
               ) : null}
             </label>
             <label className="block text-small">
-              Reason
+              {t('inventory.reasonLabel')}
               <input
                 className="mt-1 h-10 w-full rounded-md border border-border px-3"
-                placeholder="Damaged / Received / Correction"
+                placeholder={t('inventory.reasonPlaceholder')}
                 {...form.register('reason')}
               />
               {form.formState.errors.reason ? (
@@ -103,13 +111,13 @@ export function AdjustStockDialog({ item, onClose }: AdjustStockDialogProps) {
                 className="rounded-md border border-border px-3 py-2 text-small"
                 onClick={onClose}
               >
-                Отмена
+                {t('common.cancel')}
               </button>
               <button
                 type="submit"
                 className="rounded-md bg-accent px-3 py-2 text-small font-semibold text-accent-foreground"
               >
-                Save
+                {t('common.save')}
               </button>
             </div>
           </form>
@@ -118,8 +126,12 @@ export function AdjustStockDialog({ item, onClose }: AdjustStockDialogProps) {
 
       <ConfirmDialog
         open={confirmOpen}
-        title="Подтвердить adjustment"
-        description={`Изменить ${item.sku}: ${item.available} → ${nextAvailable}?`}
+        title={t('inventory.confirmTitle')}
+        description={t('inventory.confirmDescription', {
+          sku: item.sku,
+          from: item.available,
+          to: nextAvailable,
+        })}
         isPending={isLoading}
         onCancel={() => setConfirmOpen(false)}
         onConfirm={() => void form.handleSubmit(submit)()}

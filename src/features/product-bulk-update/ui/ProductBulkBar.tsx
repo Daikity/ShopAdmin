@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { BulkAction, BulkProductsResult, Category } from '@/entities/product'
 import { notifyToast } from '@/shared/lib'
 import { useBulkProductsMutation } from '@/shared/api/productsApi'
@@ -34,6 +35,7 @@ export function ProductBulkBar({
   categories,
   onClearSelection,
 }: ProductBulkBarProps) {
+  const { t } = useTranslation()
   const [panel, setPanel] = useState<Panel>(null)
   const [status, setStatus] = useState<'active' | 'draft' | 'archived'>('active')
   const [categoryId, setCategoryId] = useState(categories[0]?.id ?? '')
@@ -45,8 +47,8 @@ export function ProductBulkBar({
   const [bulkProducts, { isLoading }] = useBulkProductsMutation()
 
   const countLabel = useMemo(
-    () => `${selectedIds.length} selected`,
-    [selectedIds.length],
+    () => t('bulk.selected', { count: selectedIds.length }),
+    [selectedIds.length, t],
   )
 
   if (selectedIds.length === 0) {
@@ -70,21 +72,24 @@ export function ProductBulkBar({
       if (response.failed === 0) {
         notifyToast({
           tone: 'success',
-          message: `${response.updated} products updated`,
+          message: t('bulk.toast.allOk', { updated: response.updated }),
         })
       } else if (response.updated > 0) {
         notifyToast({
           tone: 'warning',
-          message: `${response.updated} updated, ${response.failed} failed`,
+          message: t('bulk.toast.partial', {
+            updated: response.updated,
+            failed: response.failed,
+          }),
         })
       } else {
         notifyToast({
           tone: 'error',
-          message: `Bulk failed for ${response.failed} products`,
+          message: t('bulk.toast.allFailed', { failed: response.failed }),
         })
       }
     } catch {
-      notifyToast({ tone: 'error', message: 'Bulk operation failed' })
+      notifyToast({ tone: 'error', message: t('bulk.toast.error') })
       setPanel(null)
     }
   }
@@ -92,34 +97,39 @@ export function ProductBulkBar({
   return (
     <div className="mb-4 space-y-3">
       <div className="flex flex-wrap items-center gap-2 rounded-lg border border-accent/30 bg-accent/5 p-3">
-        <p className="mr-2 text-small font-medium text-text-primary">{countLabel}</p>
+        <p
+          className="mr-2 text-small font-medium text-text-primary"
+          aria-live="polite"
+        >
+          {countLabel}
+        </p>
         <button
           type="button"
           className="rounded-md border border-border bg-surface px-2.5 py-1.5 text-small"
           onClick={() => setPanel('status')}
         >
-          Change status
+          {t('bulk.changeStatus')}
         </button>
         <button
           type="button"
           className="rounded-md border border-border bg-surface px-2.5 py-1.5 text-small"
           onClick={() => setPanel('category')}
         >
-          Change category
+          {t('bulk.changeCategory')}
         </button>
         <button
           type="button"
           className="rounded-md border border-border bg-surface px-2.5 py-1.5 text-small"
           onClick={() => setPanel('price')}
         >
-          Update price
+          {t('bulk.updatePrice')}
         </button>
         <button
           type="button"
           className="rounded-md border border-border bg-surface px-2.5 py-1.5 text-small"
           onClick={() => setPanel('stock')}
         >
-          Update stock
+          {t('bulk.updateStock')}
         </button>
         <button
           type="button"
@@ -127,35 +137,35 @@ export function ProductBulkBar({
           onClick={() => void run({ type: 'export' })}
           disabled={isLoading}
         >
-          Export
+          {t('bulk.export')}
         </button>
         <button
           type="button"
           className="rounded-md border border-danger/40 bg-surface px-2.5 py-1.5 text-small text-danger"
           onClick={() => setPanel('delete')}
         >
-          Delete
+          {t('bulk.delete')}
         </button>
         <button
           type="button"
           className="ml-auto rounded-md px-2.5 py-1.5 text-small text-text-secondary underline"
           onClick={onClearSelection}
         >
-          Clear
+          {t('bulk.clear')}
         </button>
       </div>
 
       {panel === 'status' ? (
         <div className="flex flex-wrap items-end gap-2 rounded-lg border border-border bg-surface p-3">
           <div className="min-w-44 flex-1">
-            <p className="mb-1 text-small">Status</p>
+            <p className="mb-1 text-small">{t('bulk.statusLabel')}</p>
             <Select
-              ariaLabel="Bulk status"
+              ariaLabel={t('bulk.statusAria')}
               value={status}
               options={[
-                { value: 'active', label: 'active' },
-                { value: 'draft', label: 'draft' },
-                { value: 'archived', label: 'archived' },
+                { value: 'active', label: t('enums.productStatus.active') },
+                { value: 'draft', label: t('enums.productStatus.draft') },
+                { value: 'archived', label: t('enums.productStatus.archived') },
               ]}
               onChange={(value) => setStatus(value as typeof status)}
             />
@@ -166,14 +176,14 @@ export function ProductBulkBar({
             disabled={isLoading}
             onClick={() => void run({ type: 'changeStatus', status })}
           >
-            Apply
+            {t('bulk.apply')}
           </button>
           <button
             type="button"
             className="rounded-md border border-border px-3 py-2 text-small"
             onClick={() => setPanel(null)}
           >
-            Cancel
+            {t('bulk.cancel')}
           </button>
         </div>
       ) : null}
@@ -181,9 +191,9 @@ export function ProductBulkBar({
       {panel === 'category' ? (
         <div className="flex flex-wrap items-end gap-2 rounded-lg border border-border bg-surface p-3">
           <div className="min-w-44 flex-1">
-            <p className="mb-1 text-small">Category</p>
+            <p className="mb-1 text-small">{t('bulk.categoryLabel')}</p>
             <Select
-              ariaLabel="Bulk category"
+              ariaLabel={t('bulk.categoryAria')}
               value={categoryId}
               options={categories.map((category) => ({
                 value: category.id,
@@ -198,14 +208,14 @@ export function ProductBulkBar({
             disabled={isLoading || !categoryId}
             onClick={() => void run({ type: 'changeCategory', categoryId })}
           >
-            Apply
+            {t('bulk.apply')}
           </button>
           <button
             type="button"
             className="rounded-md border border-border px-3 py-2 text-small"
             onClick={() => setPanel(null)}
           >
-            Cancel
+            {t('bulk.cancel')}
           </button>
         </div>
       ) : null}
@@ -213,19 +223,19 @@ export function ProductBulkBar({
       {panel === 'price' ? (
         <div className="flex flex-wrap items-end gap-2 rounded-lg border border-border bg-surface p-3">
           <div className="min-w-40">
-            <p className="mb-1 text-small">Mode</p>
+            <p className="mb-1 text-small">{t('bulk.modeLabel')}</p>
             <Select
-              ariaLabel="Price mode"
+              ariaLabel={t('bulk.priceModeAria')}
               value={priceMode}
               options={[
-                { value: 'percent', label: 'percent' },
-                { value: 'fixed', label: 'fixed €' },
+                { value: 'percent', label: t('bulk.mode.percent') },
+                { value: 'fixed', label: t('bulk.mode.fixed') },
               ]}
               onChange={(value) => setPriceMode(value as typeof priceMode)}
             />
           </div>
           <label className="flex flex-col gap-1 text-small">
-            Value
+            {t('bulk.valueLabel')}
             <input
               type="number"
               className="h-10 w-28 rounded-md border border-border px-2"
@@ -245,14 +255,14 @@ export function ProductBulkBar({
               })
             }
           >
-            Apply
+            {t('bulk.apply')}
           </button>
           <button
             type="button"
             className="rounded-md border border-border px-3 py-2 text-small"
             onClick={() => setPanel(null)}
           >
-            Cancel
+            {t('bulk.cancel')}
           </button>
         </div>
       ) : null}
@@ -260,19 +270,19 @@ export function ProductBulkBar({
       {panel === 'stock' ? (
         <div className="flex flex-wrap items-end gap-2 rounded-lg border border-border bg-surface p-3">
           <div className="min-w-40">
-            <p className="mb-1 text-small">Mode</p>
+            <p className="mb-1 text-small">{t('bulk.modeLabel')}</p>
             <Select
-              ariaLabel="Stock mode"
+              ariaLabel={t('bulk.stockModeAria')}
               value={stockMode}
               options={[
-                { value: 'adjust', label: 'adjust' },
-                { value: 'set', label: 'set' },
+                { value: 'adjust', label: t('bulk.mode.adjust') },
+                { value: 'set', label: t('bulk.mode.set') },
               ]}
               onChange={(value) => setStockMode(value as typeof stockMode)}
             />
           </div>
           <label className="flex flex-col gap-1 text-small">
-            Value
+            {t('bulk.valueLabel')}
             <input
               type="number"
               className="h-10 w-28 rounded-md border border-border px-2"
@@ -292,27 +302,27 @@ export function ProductBulkBar({
               })
             }
           >
-            Apply
+            {t('bulk.apply')}
           </button>
           <button
             type="button"
             className="rounded-md border border-border px-3 py-2 text-small"
             onClick={() => setPanel(null)}
           >
-            Cancel
+            {t('bulk.cancel')}
           </button>
         </div>
       ) : null}
 
       <ConfirmDialog
         open={panel === 'delete'}
-        title="Delete products"
+        title={t('bulk.deleteTitle')}
         description={
           <p>
-            Удалить {selectedIds.length} выбранных товаров? Действие необратимо.
+            {t('bulk.deleteDescription', { count: selectedIds.length })}
           </p>
         }
-        confirmLabel="Delete"
+        confirmLabel={t('bulk.deleteConfirm')}
         tone="danger"
         isPending={isLoading}
         onCancel={() => setPanel(null)}

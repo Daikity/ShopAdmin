@@ -1,16 +1,37 @@
-import type { HTMLAttributes, ReactNode, TdHTMLAttributes, ThHTMLAttributes } from 'react'
+import type {
+  HTMLAttributes,
+  ReactNode,
+  TdHTMLAttributes,
+  ThHTMLAttributes,
+} from 'react'
 import { cn } from '@/shared/lib'
 
-/** Минимальная таблица: layout + empty. Без 200 props. */
+type DataTableProps = HTMLAttributes<HTMLTableElement> & {
+  /** Включает card-stack на мобильных через data-label у TD. */
+  responsiveCards?: boolean
+}
+
+/** Минимальная таблица: layout + empty + опциональный mobile card stack. */
 export function DataTable({
   className,
   children,
+  responsiveCards = true,
   ...props
-}: HTMLAttributes<HTMLTableElement>) {
+}: DataTableProps) {
   return (
-    <div className="w-full overflow-x-auto rounded-lg border border-border bg-surface shadow-panel">
+    <div
+      className={cn(
+        'w-full rounded-lg border border-border bg-surface shadow-panel',
+        responsiveCards ? 'overflow-visible' : 'overflow-x-auto',
+      )}
+    >
       <table
-        className={cn('w-full border-collapse text-left text-body', className)}
+        className={cn(
+          'w-full border-collapse text-left text-body',
+          responsiveCards &&
+            'max-md:block max-md:[&_thead]:sr-only max-md:[&_tbody]:block max-md:[&_tr]:mb-3 max-md:[&_tr]:block max-md:[&_tr]:rounded-lg max-md:[&_tr]:border max-md:[&_tr]:border-border max-md:[&_tr]:bg-surface max-md:[&_tr]:p-3 max-md:[&_tr]:last:mb-0 max-md:[&_td]:flex max-md:[&_td]:items-start max-md:[&_td]:justify-between max-md:[&_td]:gap-3 max-md:[&_td]:border-0 max-md:[&_td]:px-0 max-md:[&_td]:py-1.5 max-md:[&_td]:before:content-[attr(data-label)] max-md:[&_td]:before:shrink-0 max-md:[&_td]:before:text-caption max-md:[&_td]:before:font-medium max-md:[&_td]:before:text-text-secondary',
+          className,
+        )}
         {...props}
       >
         {children}
@@ -69,6 +90,7 @@ export function TH({
         'px-3 py-2.5 text-caption font-medium text-text-secondary',
         className,
       )}
+      scope="col"
       {...props}
     >
       {children}
@@ -76,13 +98,18 @@ export function TH({
   )
 }
 
-export function TD({
-  className,
-  children,
-  ...props
-}: TdHTMLAttributes<HTMLTableCellElement>) {
+type TDProps = TdHTMLAttributes<HTMLTableCellElement> & {
+  /** Подпись колонки для mobile card stack. */
+  label?: string
+}
+
+export function TD({ className, children, label, ...props }: TDProps) {
   return (
-    <td className={cn('px-3 py-2.5 text-text-primary', className)} {...props}>
+    <td
+      className={cn('px-3 py-2.5 text-text-primary', className)}
+      data-label={label}
+      {...props}
+    >
       {children}
     </td>
   )
@@ -96,8 +123,11 @@ export function TableEmpty({
   colSpan: number
 }) {
   return (
-    <TR>
-      <TD colSpan={colSpan} className="py-10 text-center text-text-secondary">
+    <TR className="max-md:border-0 max-md:p-0">
+      <TD
+        colSpan={colSpan}
+        className="py-10 text-center text-text-secondary max-md:block max-md:w-full max-md:justify-center max-md:before:content-none"
+      >
         {children}
       </TD>
     </TR>

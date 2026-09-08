@@ -7,6 +7,8 @@ export {
   addUtcDays,
   compareIsoDates,
   detectPeriod,
+  formatDate,
+  formatDateTime,
   normalizeDateRange,
   parseIsoDate,
   rangeForPeriod,

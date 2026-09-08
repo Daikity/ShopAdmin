@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import type { ProductListItem } from '@/entities/product'
+import { formatDate, formatMoney } from '@/shared/lib'
 import {
   DataTable,
   TBody,
@@ -54,6 +56,7 @@ export function ProductTable({
   onSort,
   sort,
 }: ProductTableProps) {
+  const { t } = useTranslation()
   const allIds = items.map((item) => item.id)
   const allSelected =
     allIds.length > 0 && allIds.every((id) => selectedIds.includes(id))
@@ -67,25 +70,40 @@ export function ProductTable({
               type="checkbox"
               checked={allSelected}
               onChange={() => onToggleAll(allIds)}
-              aria-label="Выбрать все на странице"
+              aria-label={t('common.selectAllOnPage')}
             />
           </TH>
-          <TH>Товар</TH>
-          <TH>
-            <SortButton label="SKU" field="sku" sort={sort} onSort={onSort} />
-          </TH>
-          <TH>Категория</TH>
-          <TH>Variants</TH>
-          <TH>
-            <SortButton label="Цена" field="price" sort={sort} onSort={onSort} />
-          </TH>
-          <TH>
-            <SortButton label="Stock" field="stock" sort={sort} onSort={onSort} />
-          </TH>
-          <TH>Status</TH>
+          <TH>{t('products.table.product')}</TH>
           <TH>
             <SortButton
-              label="Updated"
+              label={t('products.table.sku')}
+              field="sku"
+              sort={sort}
+              onSort={onSort}
+            />
+          </TH>
+          <TH>{t('products.table.category')}</TH>
+          <TH>{t('products.table.variants')}</TH>
+          <TH>
+            <SortButton
+              label={t('products.table.price')}
+              field="price"
+              sort={sort}
+              onSort={onSort}
+            />
+          </TH>
+          <TH>
+            <SortButton
+              label={t('products.table.stock')}
+              field="stock"
+              sort={sort}
+              onSort={onSort}
+            />
+          </TH>
+          <TH>{t('products.table.status')}</TH>
+          <TH>
+            <SortButton
+              label={t('products.table.updated')}
               field="updatedAt"
               sort={sort}
               onSort={onSort}
@@ -104,10 +122,10 @@ export function ProductTable({
                   type="checkbox"
                   checked={selectedIds.includes(item.id)}
                   onChange={() => onToggle(item.id)}
-                  aria-label={`Выбрать ${item.name}`}
+                  aria-label={t('common.selectItem', { name: item.name })}
                 />
               </TD>
-              <TD>
+              <TD label={t('products.table.product')}>
                 <Link
                   to={`/catalog/products/${item.id}`}
                   className="flex items-center gap-3 font-medium text-accent hover:underline"
@@ -120,18 +138,28 @@ export function ProductTable({
                   <span>{item.name}</span>
                 </Link>
               </TD>
-              <TD className="text-small text-text-secondary">{item.sku}</TD>
-              <TD>{item.categoryName}</TD>
-              <TD>{item.variantsCount}</TD>
-              <TD>€{item.price.toFixed(2)}</TD>
-              <TD>{item.stock}</TD>
-              <TD>
-                <span className="rounded-md bg-surface-muted px-2 py-0.5 text-caption capitalize">
-                  {item.status}
+              <TD
+                label={t('products.table.sku')}
+                className="text-small text-text-secondary"
+              >
+                {item.sku}
+              </TD>
+              <TD label={t('products.table.category')}>{item.categoryName}</TD>
+              <TD label={t('products.table.variants')}>{item.variantsCount}</TD>
+              <TD label={t('products.table.price')}>
+                {formatMoney(item.price)}
+              </TD>
+              <TD label={t('products.table.stock')}>{item.stock}</TD>
+              <TD label={t('products.table.status')}>
+                <span className="rounded-md bg-surface-muted px-2 py-0.5 text-caption">
+                  {t(`enums.productStatus.${item.status}`)}
                 </span>
               </TD>
-              <TD className="text-small text-text-secondary">
-                {new Date(item.updatedAt).toLocaleDateString('ru-RU')}
+              <TD
+                label={t('products.table.updated')}
+                className="text-small text-text-secondary"
+              >
+                {formatDate(item.updatedAt)}
               </TD>
             </TR>
           ))

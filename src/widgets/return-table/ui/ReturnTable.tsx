@@ -1,4 +1,6 @@
+import { useTranslation } from 'react-i18next'
 import type { ReturnListItem } from '@/entities/return'
+import { formatDate, formatMoney } from '@/shared/lib'
 import {
   DataTable,
   TBody,
@@ -49,25 +51,27 @@ export function ReturnTable({
   sort,
   onOpen,
 }: ReturnTableProps) {
+  const { t } = useTranslation()
+
   return (
     <DataTable>
       <THead>
         <TR>
           <TH>
             <SortButton
-              label="Return"
+              label={t('returns.table.return')}
               field="number"
               sort={sort}
               onSort={onSort}
             />
           </TH>
-          <TH>Order</TH>
-          <TH>Customer</TH>
-          <TH>Product</TH>
-          <TH>Reason</TH>
+          <TH>{t('returns.table.order')}</TH>
+          <TH>{t('returns.table.customer')}</TH>
+          <TH>{t('returns.table.product')}</TH>
+          <TH>{t('returns.table.reason')}</TH>
           <TH>
             <SortButton
-              label="Amount"
+              label={t('returns.table.amount')}
               field="amount"
               sort={sort}
               onSort={onSort}
@@ -75,7 +79,7 @@ export function ReturnTable({
           </TH>
           <TH>
             <SortButton
-              label="Status"
+              label={t('returns.table.status')}
               field="status"
               sort={sort}
               onSort={onSort}
@@ -83,7 +87,7 @@ export function ReturnTable({
           </TH>
           <TH>
             <SortButton
-              label="Created"
+              label={t('returns.table.created')}
               field="createdAt"
               sort={sort}
               onSort={onSort}
@@ -97,7 +101,7 @@ export function ReturnTable({
         ) : (
           items.map((item) => (
             <TR key={item.id}>
-              <TD>
+              <TD label={t('returns.table.return')}>
                 <button
                   type="button"
                   className="font-medium text-accent hover:underline"
@@ -106,18 +110,30 @@ export function ReturnTable({
                   {item.number}
                 </button>
               </TD>
-              <TD className="text-small">{item.orderNumber}</TD>
-              <TD>{item.customerName}</TD>
-              <TD>{item.productName}</TD>
-              <TD className="text-small text-text-secondary">{item.reason}</TD>
-              <TD>€{item.amount.toFixed(2)}</TD>
-              <TD>
-                <span className="rounded-md bg-surface-muted px-2 py-0.5 text-caption capitalize">
-                  {item.status}
+              <TD label={t('returns.table.order')} className="text-small">
+                {item.orderNumber}
+              </TD>
+              <TD label={t('returns.table.customer')}>{item.customerName}</TD>
+              <TD label={t('returns.table.product')}>{item.productName}</TD>
+              <TD
+                label={t('returns.table.reason')}
+                className="text-small text-text-secondary"
+              >
+                {item.reason}
+              </TD>
+              <TD label={t('returns.table.amount')}>
+                {formatMoney(item.amount)}
+              </TD>
+              <TD label={t('returns.table.status')}>
+                <span className="rounded-md bg-surface-muted px-2 py-0.5 text-caption">
+                  {t(`enums.returnStatus.${item.status}`)}
                 </span>
               </TD>
-              <TD className="text-small text-text-secondary">
-                {new Date(item.createdAt).toLocaleDateString('ru-RU')}
+              <TD
+                label={t('returns.table.created')}
+                className="text-small text-text-secondary"
+              >
+                {formatDate(item.createdAt)}
               </TD>
             </TR>
           ))

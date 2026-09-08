@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { CreateProductButton } from '@/features/product-create'
 import { ProductBulkBar } from '@/features/product-bulk-update'
 import { useCan } from '@/features/role-switch'
@@ -9,6 +10,7 @@ import { ProductTable } from '@/widgets/product-table'
 import { useProductsFilters } from '../model/useProductsFilters'
 
 export function ProductsPage() {
+  const { t } = useTranslation()
   const canWrite = useCan('products.write')
   const { filters, setFilters, resetFilters } = useProductsFilters()
   const [selectedIds, setSelectedIds] = useState<string[]>([])
@@ -39,23 +41,23 @@ export function ProductsPage() {
 
   const statusOptions = useMemo(
     () => [
-      { value: '', label: 'Все статусы' },
-      { value: 'active', label: 'active' },
-      { value: 'draft', label: 'draft' },
-      { value: 'archived', label: 'archived' },
+      { value: '', label: t('common.allStatuses') },
+      { value: 'active', label: t('enums.productStatus.active') },
+      { value: 'draft', label: t('enums.productStatus.draft') },
+      { value: 'archived', label: t('enums.productStatus.archived') },
     ],
-    [],
+    [t],
   )
 
   const categoryOptions = useMemo(
     () => [
-      { value: '', label: 'Все категории' },
+      { value: '', label: t('common.allCategories') },
       ...categories.map((category) => ({
         value: category.id,
         label: category.name,
       })),
     ],
-    [categories],
+    [categories, t],
   )
 
   const hasActiveFilters = Boolean(
@@ -63,8 +65,8 @@ export function ProductsPage() {
   )
 
   const emptyMessage = !hasActiveFilters
-    ? 'Пока нет товаров'
-    : 'Нет товаров по текущим фильтрам'
+    ? t('products.empty')
+    : t('products.emptyFiltered')
 
   function handleSort(field: string) {
     const [currentField, currentOrder] = (filters.sort ?? 'updatedAt:desc').split(
@@ -78,8 +80,8 @@ export function ProductsPage() {
   return (
     <section>
       <PageHeader
-        title="Catalog"
-        description="Товары, URL-фильтры и bulk operations с partial success."
+        title={t('products.pageTitle')}
+        description={t('products.pageDescription')}
         actions={canWrite ? <CreateProductButton /> : undefined}
       />
 
@@ -87,12 +89,12 @@ export function ProductsPage() {
         <input
           value={searchInput}
           onChange={(event) => setSearchInput(event.target.value)}
-          placeholder="Поиск товаров"
+          placeholder={t('products.searchPlaceholder')}
           className="h-10 rounded-md border border-border px-3 text-small"
-          aria-label="Поиск товаров"
+          aria-label={t('products.searchAria')}
         />
         <Select
-          ariaLabel="Статус"
+          ariaLabel={t('products.statusAria')}
           value={filters.status ?? ''}
           options={statusOptions}
           onChange={(value) =>
@@ -103,7 +105,7 @@ export function ProductsPage() {
           }
         />
         <Select
-          ariaLabel="Категория"
+          ariaLabel={t('products.categoryAria')}
           value={filters.categoryId ?? ''}
           options={categoryOptions}
           onChange={(value) =>
@@ -121,7 +123,7 @@ export function ProductsPage() {
             resetFilters()
           }}
         >
-          Сбросить
+          {t('common.reset')}
         </button>
       </div>
 
@@ -139,7 +141,7 @@ export function ProductsPage() {
         isFetching={isFetching && isSuccess}
         isEmpty={isSuccess && (data?.items.length ?? 0) === 0}
         emptyMessage={emptyMessage}
-        errorMessage="Не удалось загрузить товары"
+        errorMessage={t('products.loadError')}
       >
         <ProductTable
           items={data?.items ?? []}
@@ -164,8 +166,18 @@ export function ProductsPage() {
         {data ? (
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-small text-text-secondary">
             <p>
-              {data.total} товаров · стр. {data.page}/{data.totalPages}
-              {selectedIds.length > 0 ? ` · выбрано ${selectedIds.length}` : ''}
+              {selectedIds.length > 0
+                ? t('products.paginationSelected', {
+                    total: data.total,
+                    page: data.page,
+                    totalPages: data.totalPages,
+                    selected: selectedIds.length,
+                  })
+                : t('products.pagination', {
+                    total: data.total,
+                    page: data.page,
+                    totalPages: data.totalPages,
+                  })}
             </p>
             <div className="flex gap-2">
               <button
@@ -174,7 +186,7 @@ export function ProductsPage() {
                 disabled={data.page <= 1}
                 onClick={() => setFilters({ page: data.page - 1 })}
               >
-                Назад
+                {t('common.prev')}
               </button>
               <button
                 type="button"
@@ -182,7 +194,7 @@ export function ProductsPage() {
                 disabled={data.page >= data.totalPages}
                 onClick={() => setFilters({ page: data.page + 1 })}
               >
-                Далее
+                {t('common.next')}
               </button>
             </div>
           </div>

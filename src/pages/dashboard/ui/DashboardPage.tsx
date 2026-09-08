@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { DashboardPeriod } from '@/entities/dashboard'
 import { useGetDashboardQuery } from '@/shared/api/dashboardApi'
 import { cn } from '@/shared/lib'
@@ -13,15 +14,16 @@ import {
 import { hasDashboardData } from '../model/hasDashboardData'
 import { useDashboardFilters } from '../model/useDashboardFilters'
 
-const PERIOD_OPTIONS: Array<{ value: DashboardPeriod; label: string }> = [
-  { value: 'today', label: 'Today' },
-  { value: '7d', label: '7 days' },
-  { value: '30d', label: '30 days' },
-  { value: '90d', label: '90 days' },
-  { value: 'custom', label: 'Custom' },
+const PERIOD_VALUES: DashboardPeriod[] = [
+  'today',
+  '7d',
+  '30d',
+  '90d',
+  'custom',
 ]
 
 export function DashboardPage() {
+  const { t } = useTranslation()
   const { filters, setFilters } = useDashboardFilters()
 
   const queryArgs = useMemo(
@@ -40,31 +42,31 @@ export function DashboardPage() {
   return (
     <section>
       <PageHeader
-        title="Dashboard"
-        description="KPI магазина, графики и недавние заказы. Период хранится в URL."
+        title={t('dashboard.pageTitle')}
+        description={t('dashboard.pageDescription')}
       />
 
       <div className="mb-4 space-y-3 rounded-lg border border-border bg-surface p-3">
         <div className="flex flex-wrap gap-2">
-          {PERIOD_OPTIONS.map((option) => (
+          {PERIOD_VALUES.map((period) => (
             <button
-              key={option.value}
+              key={period}
               type="button"
               className={cn(
                 'h-9 rounded-md border px-3 text-small transition',
-                filters.period === option.value
+                filters.period === period
                   ? 'border-accent bg-accent text-accent-foreground'
                   : 'border-border bg-surface text-text-primary hover:border-accent',
               )}
               onClick={() => {
-                if (option.value === 'custom') {
+                if (period === 'custom') {
                   setFilters({ period: 'custom' })
                   return
                 }
-                setFilters({ period: option.value })
+                setFilters({ period })
               }}
             >
-              {option.label}
+              {t(`dashboard.period.${period}`)}
             </button>
           ))}
         </div>
@@ -72,7 +74,7 @@ export function DashboardPage() {
         {filters.period === 'custom' ? (
           <div className="grid gap-3 sm:grid-cols-2">
             <DatePicker
-              label="From"
+              label={t('common.from')}
               value={filters.from}
               onChange={(from) =>
                 setFilters({
@@ -83,7 +85,7 @@ export function DashboardPage() {
               }
             />
             <DatePicker
-              label="To"
+              label={t('common.to')}
               value={filters.to}
               onChange={(to) =>
                 setFilters({
@@ -102,8 +104,8 @@ export function DashboardPage() {
         isError={isError}
         isFetching={isFetching && isSuccess}
         isEmpty={isEmpty}
-        emptyMessage="Нет данных за выбранный период"
-        errorMessage="Не удалось загрузить dashboard"
+        emptyMessage={t('dashboard.empty')}
+        errorMessage={t('dashboard.loadError')}
       >
         {data ? (
           <div className="space-y-4">

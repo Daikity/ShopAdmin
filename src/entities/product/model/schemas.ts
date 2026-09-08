@@ -1,27 +1,30 @@
+import type { TFunction } from 'i18next'
 import { z } from 'zod'
 
 const productStatusSchema = z.enum(['active', 'draft', 'archived'])
 
-export const productFormSchema = z.object({
-  name: z.string().min(2, 'Укажите название'),
-  description: z.string().min(1, 'Укажите описание'),
-  brand: z.string().min(1, 'Укажите бренд'),
-  categoryId: z.string().min(1, 'Выберите категорию'),
-  tags: z.string(),
-  status: productStatusSchema,
-  sku: z.string().min(1, 'Укажите SKU'),
-  barcode: z.string().min(1, 'Укажите barcode'),
-  weight: z.number().min(0, 'Вес не может быть отрицательным'),
-  length: z.number().min(0),
-  width: z.number().min(0),
-  height: z.number().min(0),
-  price: z.number().min(0, 'Цена не может быть отрицательной'),
-  stock: z.number().int().min(0),
-  seoTitle: z.string(),
-  seoDescription: z.string(),
-})
+export function createProductFormSchema(t: TFunction) {
+  return z.object({
+    name: z.string().min(2, t('validation.product.nameRequired')),
+    description: z.string().min(1, t('validation.product.descriptionRequired')),
+    brand: z.string().min(1, t('validation.product.brandRequired')),
+    categoryId: z.string().min(1, t('validation.product.categoryRequired')),
+    tags: z.string(),
+    status: productStatusSchema,
+    sku: z.string().min(1, t('validation.product.skuRequired')),
+    barcode: z.string().min(1, t('validation.product.barcodeRequired')),
+    weight: z.number().min(0, t('validation.product.weightNegative')),
+    length: z.number().min(0),
+    width: z.number().min(0),
+    height: z.number().min(0),
+    price: z.number().min(0, t('validation.product.priceNegative')),
+    stock: z.number().int().min(0),
+    seoTitle: z.string(),
+    seoDescription: z.string(),
+  })
+}
 
-export type ProductFormValues = z.infer<typeof productFormSchema>
+export type ProductFormValues = z.infer<ReturnType<typeof createProductFormSchema>>
 
 export const productFiltersSchema = z.object({
   page: z.coerce.number().int().positive().catch(1),

@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   LogoutButton,
   getSession,
@@ -15,6 +16,7 @@ type HeaderProps = {
 }
 
 export function Header({ mobileNavOpen, onToggleMobileNav }: HeaderProps) {
+  const { t } = useTranslation()
   useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
   const session = getSession()
 
@@ -24,14 +26,14 @@ export function Header({ mobileNavOpen, onToggleMobileNav }: HeaderProps) {
         type="button"
         className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border text-text-primary transition-colors hover:bg-surface-muted lg:hidden"
         onClick={onToggleMobileNav}
-        aria-label={mobileNavOpen ? 'Закрыть меню' : 'Открыть меню'}
+        aria-label={mobileNavOpen ? t('shell.closeMenu') : t('shell.openMenu')}
         aria-expanded={mobileNavOpen}
       >
         {mobileNavOpen ? <CloseIcon /> : <BurgerIcon />}
       </button>
       <div className="min-w-0 flex-1">
         <p className="truncate text-small text-text-secondary">
-          E-commerce operations panel
+          {t('shell.tagline')}
         </p>
       </div>
       {session ? (

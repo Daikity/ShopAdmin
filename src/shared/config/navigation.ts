@@ -1,6 +1,6 @@
 import type { Permission } from '@/entities/role'
 
-/** Конфиг навигации админки — единый источник пунктов меню. */
+/** Конфиг навигации админки — labelKey → i18n `nav.*`. */
 export type NavIconId =
   | 'dashboard'
   | 'catalog'
@@ -17,58 +17,75 @@ export type NavIconId =
 
 export type NavItem = {
   to: string
-  label: string
+  labelKey:
+    | 'nav.dashboard'
+    | 'nav.catalog'
+    | 'nav.orders'
+    | 'nav.customers'
+    | 'nav.inventory'
+    | 'nav.pricing'
+    | 'nav.returns'
+    | 'nav.reports'
+    | 'nav.users'
+    | 'nav.roles'
+    | 'nav.audit'
+    | 'nav.settings'
   icon: NavIconId
   /** Если задано — пункт виден только при can(permission). */
   permission?: Permission
 }
 
 export const mainNavItems: NavItem[] = [
-  { to: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
+  { to: '/dashboard', labelKey: 'nav.dashboard', icon: 'dashboard' },
   {
     to: '/catalog/products',
-    label: 'Catalog',
+    labelKey: 'nav.catalog',
     icon: 'catalog',
     permission: 'products.read',
   },
-  { to: '/orders', label: 'Orders', icon: 'orders', permission: 'orders.read' },
+  {
+    to: '/orders',
+    labelKey: 'nav.orders',
+    icon: 'orders',
+    permission: 'orders.read',
+  },
   {
     to: '/customers',
-    label: 'Customers',
+    labelKey: 'nav.customers',
     icon: 'customers',
     permission: 'customers.read',
   },
   {
     to: '/inventory',
-    label: 'Inventory',
+    labelKey: 'nav.inventory',
     icon: 'inventory',
     permission: 'inventory.read',
   },
   {
     to: '/pricing',
-    label: 'Pricing',
+    labelKey: 'nav.pricing',
     icon: 'pricing',
     permission: 'products.write',
   },
   {
     to: '/returns',
-    label: 'Returns',
+    labelKey: 'nav.returns',
     icon: 'returns',
     permission: 'returns.read',
   },
   {
     to: '/reports',
-    label: 'Reports',
+    labelKey: 'nav.reports',
     icon: 'reports',
     permission: 'reports.read',
   },
-  { to: '/users', label: 'Users', icon: 'users', permission: 'users.read' },
-  { to: '/roles', label: 'Roles', icon: 'roles', permission: 'users.read' },
+  { to: '/users', labelKey: 'nav.users', icon: 'users', permission: 'users.read' },
+  { to: '/roles', labelKey: 'nav.roles', icon: 'roles', permission: 'users.read' },
   {
     to: '/audit-log',
-    label: 'Audit Log',
+    labelKey: 'nav.audit',
     icon: 'audit',
     permission: 'audit.read',
   },
-  { to: '/settings', label: 'Settings', icon: 'settings' },
+  { to: '/settings', labelKey: 'nav.settings', icon: 'settings' },
 ]

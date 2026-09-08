@@ -1,22 +1,27 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router-dom'
+import type { OrderStatus } from '@/entities/order'
+import type { ReturnStatus } from '@/entities/return'
+import { formatDate, formatDateTime, formatMoney } from '@/shared/lib'
 import { useGetCustomerQuery } from '@/shared/api/customersApi'
 import { PageHeader, QueryState } from '@/shared/ui'
 
-const tabs = ['Overview', 'Orders', 'Returns', 'Activity'] as const
-type Tab = (typeof tabs)[number]
+const TAB_KEYS = ['overview', 'orders', 'returns', 'activity'] as const
+type Tab = (typeof TAB_KEYS)[number]
 
 export function CustomerDetailsPage() {
+  const { t } = useTranslation()
   const { id = '' } = useParams()
-  const [tab, setTab] = useState<Tab>('Overview')
+  const [tab, setTab] = useState<Tab>('overview')
   const { data, isLoading, isError, isFetching, isSuccess } =
     useGetCustomerQuery(id, { skip: !id })
 
   return (
     <section>
       <PageHeader
-        title={data?.name ?? 'Customer'}
-        description={data?.email ?? 'Карточка клиента'}
+        title={data?.name ?? t('customers.detailsFallbackTitle')}
+        description={data?.email ?? t('customers.detailsFallbackDescription')}
         back={{ to: '/customers' }}
       />
 
@@ -24,12 +29,12 @@ export function CustomerDetailsPage() {
         isLoading={isLoading}
         isError={isError}
         isFetching={isFetching && isSuccess}
-        errorMessage="Клиент не найден или недоступен"
+        errorMessage={t('customers.detailsLoadError')}
       >
         {data ? (
           <div className="space-y-4">
             <div className="flex flex-wrap gap-2 border-b border-border pb-2">
-              {tabs.map((item) => (
+              {TAB_KEYS.map((item) => (
                 <button
                   key={item}
                   type="button"
@@ -41,37 +46,40 @@ export function CustomerDetailsPage() {
                   ].join(' ')}
                   onClick={() => setTab(item)}
                 >
-                  {item}
+                  {t(`customers.tab.${item}`)}
                 </button>
               ))}
             </div>
 
-            {tab === 'Overview' ? (
+            {tab === 'overview' ? (
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <Stat label="Total orders" value={String(data.ordersCount)} />
                 <Stat
-                  label="Total spent"
-                  value={`€${data.totalSpent.toFixed(2)}`}
+                  label={t('customers.stat.totalOrders')}
+                  value={String(data.ordersCount)}
                 />
                 <Stat
-                  label="Average order"
-                  value={`€${data.averageOrder.toFixed(2)}`}
+                  label={t('customers.stat.totalSpent')}
+                  value={formatMoney(data.totalSpent)}
                 />
                 <Stat
-                  label="Last order"
+                  label={t('customers.stat.averageOrder')}
+                  value={formatMoney(data.averageOrder)}
+                />
+                <Stat
+                  label={t('customers.stat.lastOrder')}
                   value={
-                    data.lastOrderAt
-                      ? new Date(data.lastOrderAt).toLocaleDateString('ru-RU')
-                      : '—'
+                    data.lastOrderAt ? formatDate(data.lastOrderAt) : '—'
                   }
                 />
               </div>
             ) : null}
 
-            {tab === 'Orders' ? (
+            {tab === 'orders' ? (
               <div className="rounded-lg border border-border bg-surface p-4">
                 {data.orders.length === 0 ? (
-                  <p className="text-small text-text-secondary">Нет заказов</p>
+                  <p className="text-small text-text-secondary">
+                    {t('customers.emptyOrders')}
+                  </p>
                 ) : (
                   <ul className="space-y-2">
                     {data.orders.map((order) => (
@@ -85,11 +93,11 @@ export function CustomerDetailsPage() {
                         >
                           {order.number}
                         </Link>
-                        <span className="text-small capitalize text-text-secondary">
-                          {order.status}
+                        <span className="text-small text-text-secondary">
+                          {t(`enums.orderStatus.${order.status as OrderStatus}`)}
                         </span>
                         <span className="text-small">
-                          €{order.total.toFixed(2)}
+                          {formatMoney(order.total)}
                         </span>
                       </li>
                     ))}
@@ -98,10 +106,12 @@ export function CustomerDetailsPage() {
               </div>
             ) : null}
 
-            {tab === 'Returns' ? (
+            {tab === 'returns' ? (
               <div className="rounded-lg border border-border bg-surface p-4">
                 {data.returns.length === 0 ? (
-                  <p className="text-small text-text-secondary">Нет возвратов</p>
+                  <p className="text-small text-text-secondary">
+                    {t('customers.emptyReturns')}
+                  </p>
                 ) : (
                   <ul className="space-y-2">
                     {data.returns.map((item) => (
@@ -110,11 +120,13 @@ export function CustomerDetailsPage() {
                         className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-2 last:border-b-0"
                       >
                         <span className="font-medium">{item.number}</span>
-                        <span className="text-small capitalize text-text-secondary">
-                          {item.status}
+                        <span className="text-small text-text-secondary">
+                          {t(
+                            `enums.returnStatus.${item.status as ReturnStatus}`,
+                          )}
                         </span>
                         <span className="text-small">
-                          €{item.amount.toFixed(2)}
+                          {formatMoney(item.amount)}
                         </span>
                       </li>
                     ))}
@@ -123,13 +135,13 @@ export function CustomerDetailsPage() {
               </div>
             ) : null}
 
-            {tab === 'Activity' ? (
+            {tab === 'activity' ? (
               <div className="rounded-lg border border-border bg-surface p-4">
                 <ul className="space-y-2">
                   {data.activity.map((event) => (
                     <li key={event.id} className="text-small">
                       <span className="text-text-secondary">
-                        {new Date(event.at).toLocaleString('ru-RU')}
+                        {formatDateTime(event.at)}
                       </span>
                       <span className="mx-2">·</span>
                       {event.message}

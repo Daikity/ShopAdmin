@@ -1,8 +1,8 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { OrderAction, OrderStatus } from '@/entities/order'
 import {
   getAvailableOrderActions,
-  getOrderActionLabel,
   isDestructiveOrderAction,
   resolveOrderActionStatus,
 } from '@/entities/order'
@@ -17,11 +17,21 @@ type OrderStatusActionsProps = {
   status: OrderStatus
 }
 
+const ORDER_ACTION_KEYS = {
+  confirm: 'orders.workflow.confirm',
+  cancel: 'orders.workflow.cancel',
+  start_fulfillment: 'orders.workflow.startFulfillment',
+  ship: 'orders.workflow.ship',
+  deliver: 'orders.workflow.deliver',
+  refund: 'orders.workflow.refund',
+} as const
+
 export function OrderStatusActions({
   orderId,
   orderNumber,
   status,
 }: OrderStatusActionsProps) {
+  const { t } = useTranslation()
   const [pendingAction, setPendingAction] = useState<OrderAction | null>(null)
   const [changeStatus, { isLoading }] = useChangeOrderStatusMutation()
   const canWrite = useCan('orders.write')
@@ -31,18 +41,25 @@ export function OrderStatusActions({
     return canWrite
   })
 
+  function actionLabel(action: OrderAction) {
+    return t(ORDER_ACTION_KEYS[action])
+  }
+
   async function apply(action: OrderAction) {
     const nextStatus = resolveOrderActionStatus(action)
     try {
       await changeStatus({ id: orderId, status: nextStatus }).unwrap()
       notifyToast({
         tone: 'success',
-        message: `${orderNumber}: ${getOrderActionLabel(action)}`,
+        message: t('orders.toast.success', {
+          orderNumber,
+          action: actionLabel(action),
+        }),
       })
     } catch {
       notifyToast({
         tone: 'error',
-        message: `${orderNumber}: не удалось сменить статус (rollback)`,
+        message: t('orders.toast.failed', { orderNumber }),
       })
     } finally {
       setPendingAction(null)
@@ -53,8 +70,10 @@ export function OrderStatusActions({
     return (
       <p className="text-small text-text-secondary">
         {!canWrite && !canRefund
-          ? 'Нет permission на изменение заказа (orders.write / orders.refund).'
-          : `Нет доступных действий для статуса «${status}».`}
+          ? t('orders.action.noPermission')
+          : t('orders.action.noneForStatus', {
+              status: t(`enums.orderStatus.${status}`),
+            })}
       </p>
     )
   }
@@ -81,21 +100,24 @@ export function OrderStatusActions({
               void apply(action)
             }}
           >
-            {getOrderActionLabel(action)}
+            {actionLabel(action)}
           </button>
         ))}
       </div>
 
       <ConfirmDialog
         open={pendingAction !== null}
-        title="Подтвердите действие"
+        title={t('orders.confirmTitle')}
         description={
           pendingAction
-            ? `${getOrderActionLabel(pendingAction)} для ${orderNumber}?`
+            ? t('orders.confirmDescription', {
+                action: actionLabel(pendingAction),
+                orderNumber,
+              })
             : null
         }
         tone="danger"
-        confirmLabel="Подтвердить"
+        confirmLabel={t('orders.confirmLabel')}
         isPending={isLoading}
         onCancel={() => setPendingAction(null)}
         onConfirm={() => {

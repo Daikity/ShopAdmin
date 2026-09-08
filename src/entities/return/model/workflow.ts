@@ -17,13 +17,6 @@ const ACTION_TO_STATUS: Record<ReturnAction, ReturnStatus> = {
   refund: 'refunded',
 }
 
-const ACTION_LABELS: Record<ReturnAction, string> = {
-  approve: 'Approve',
-  reject: 'Reject',
-  receive: 'Mark received',
-  refund: 'Refund',
-}
-
 export function canChangeReturnStatus(
   currentStatus: ReturnStatus,
   nextStatus: ReturnStatus,
@@ -54,10 +47,6 @@ export function getAvailableReturnActions(
   return (Object.keys(ACTION_TO_STATUS) as ReturnAction[]).filter((action) =>
     canPerformReturnAction(currentStatus, action),
   )
-}
-
-export function getReturnActionLabel(action: ReturnAction): string {
-  return ACTION_LABELS[action]
 }
 
 export function isDestructiveReturnAction(action: ReturnAction): boolean {

@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useGetCustomersQuery } from '@/shared/api/customersApi'
 import { useGetCategoriesQuery, useGetProductsQuery } from '@/shared/api/productsApi'
 import { useGetReportsQuery } from '@/shared/api/reportsApi'
@@ -15,6 +16,7 @@ import { hasReportsData } from '../model/hasReportsData'
 import { useReportsFilters } from '../model/useReportsFilters'
 
 export function ReportsPage() {
+  const { t } = useTranslation()
   const { filters, setFilters, resetFilters } = useReportsFilters()
   const { data: categories = [] } = useGetCategoriesQuery()
   const { data: productsData } = useGetProductsQuery({
@@ -45,85 +47,105 @@ export function ReportsPage() {
 
   const isEmpty = isSuccess && data ? !hasReportsData(data) : false
 
+  const categoryOptions = useMemo(
+    () => [
+      { value: '', label: t('common.allCategories') },
+      ...categories.map((item) => ({
+        value: item.id,
+        label: item.name,
+      })),
+    ],
+    [categories, t],
+  )
+
+  const productOptions = useMemo(
+    () => [
+      { value: '', label: t('common.allProducts') },
+      ...(productsData?.items ?? []).map((item) => ({
+        value: item.id,
+        label: item.name,
+      })),
+    ],
+    [productsData?.items, t],
+  )
+
+  const customerOptions = useMemo(
+    () => [
+      { value: '', label: t('common.allCustomers') },
+      ...(customersData?.items ?? []).map((item) => ({
+        value: item.id,
+        label: item.name,
+      })),
+    ],
+    [customersData?.items, t],
+  )
+
+  const paymentOptions = useMemo(
+    () => [
+      { value: '', label: t('reports.allPaymentStatuses') },
+      { value: 'pending', label: t('enums.paymentStatus.pending') },
+      { value: 'paid', label: t('enums.paymentStatus.paid') },
+      { value: 'failed', label: t('enums.paymentStatus.failed') },
+      { value: 'refunded', label: t('enums.paymentStatus.refunded') },
+    ],
+    [t],
+  )
+
   return (
     <section>
       <PageHeader
-        title="Reports"
-        description="Выручка, заказы, категории и топы. Все фильтры — в URL."
+        title={t('reports.pageTitle')}
+        description={t('reports.pageDescription')}
       />
 
       <div className="mb-4 grid items-end gap-3 rounded-lg border border-border bg-surface p-3 md:grid-cols-2 xl:grid-cols-3">
         <DatePicker
-          label="From"
+          label={t('common.from')}
           value={filters.from}
           onChange={(from) => setFilters({ from })}
         />
         <DatePicker
-          label="To"
+          label={t('common.to')}
           value={filters.to}
           onChange={(to) => setFilters({ to })}
         />
         <div className="space-y-1 text-small">
-          <p className="text-text-secondary">Category</p>
+          <p className="text-text-secondary">{t('reports.filter.category')}</p>
           <Select
-            ariaLabel="Category"
+            ariaLabel={t('reports.filter.categoryAria')}
             value={filters.categoryId ?? ''}
-            options={[
-              { value: '', label: 'Все категории' },
-              ...categories.map((item) => ({
-                value: item.id,
-                label: item.name,
-              })),
-            ]}
+            options={categoryOptions}
             onChange={(value) =>
               setFilters({ categoryId: value || undefined })
             }
           />
         </div>
         <div className="space-y-1 text-small">
-          <p className="text-text-secondary">Product</p>
+          <p className="text-text-secondary">{t('reports.filter.product')}</p>
           <Select
-            ariaLabel="Product"
+            ariaLabel={t('reports.filter.productAria')}
             value={filters.productId ?? ''}
-            options={[
-              { value: '', label: 'Все товары' },
-              ...(productsData?.items ?? []).map((item) => ({
-                value: item.id,
-                label: item.name,
-              })),
-            ]}
+            options={productOptions}
             onChange={(value) => setFilters({ productId: value || undefined })}
           />
         </div>
         <div className="space-y-1 text-small">
-          <p className="text-text-secondary">Customer</p>
+          <p className="text-text-secondary">{t('reports.filter.customer')}</p>
           <Select
-            ariaLabel="Customer"
+            ariaLabel={t('reports.filter.customerAria')}
             value={filters.customerId ?? ''}
-            options={[
-              { value: '', label: 'Все клиенты' },
-              ...(customersData?.items ?? []).map((item) => ({
-                value: item.id,
-                label: item.name,
-              })),
-            ]}
+            options={customerOptions}
             onChange={(value) =>
               setFilters({ customerId: value || undefined })
             }
           />
         </div>
         <div className="space-y-1 text-small">
-          <p className="text-text-secondary">Payment status</p>
+          <p className="text-text-secondary">{t('reports.filter.payment')}</p>
           <Select
-            ariaLabel="Payment status"
+            ariaLabel={t('reports.filter.paymentAria')}
             value={filters.paymentStatus ?? ''}
-            options={[
-              { value: '', label: 'Все payment status' },
-              { value: 'pending', label: 'pending' },
-              { value: 'paid', label: 'paid' },
-              { value: 'failed', label: 'failed' },
-              { value: 'refunded', label: 'refunded' },
-            ]}
+            options={paymentOptions}
             onChange={(value) =>
               setFilters({
                 paymentStatus: (value ||
@@ -137,7 +159,7 @@ export function ReportsPage() {
           className="h-10 rounded-md border border-border px-3 text-small transition hover:border-accent hover:bg-surface-muted md:col-span-2 xl:col-span-3"
           onClick={() => resetFilters()}
         >
-          Сбросить фильтры
+          {t('reports.resetFilters')}
         </button>
       </div>
 
@@ -146,8 +168,8 @@ export function ReportsPage() {
         isError={isError}
         isFetching={isFetching && isSuccess}
         isEmpty={isEmpty}
-        emptyMessage="Нет данных по текущим фильтрам"
-        errorMessage="Не удалось загрузить reports"
+        emptyMessage={t('reports.empty')}
+        errorMessage={t('reports.loadError')}
       >
         {data ? (
           <div className="space-y-4">

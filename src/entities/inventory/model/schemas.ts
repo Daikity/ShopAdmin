@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next'
 import { z } from 'zod'
 
 const stockStatusSchema = z.enum(['in_stock', 'low_stock', 'out_of_stock'])
@@ -30,12 +31,16 @@ export const inventoryFiltersSchema = z.object({
 
 export type InventoryFilters = z.infer<typeof inventoryFiltersSchema>
 
-export const adjustStockSchema = z.object({
-  adjustment: z
-    .number()
-    .int('Только целое число')
-    .refine((value) => value !== 0, 'Adjustment не может быть 0'),
-  reason: z.string().min(2, 'Укажите причину'),
-})
+export function createAdjustStockSchema(t: TFunction) {
+  return z.object({
+    adjustment: z
+      .number()
+      .int(t('validation.inventory.adjustmentInt'))
+      .refine((value) => value !== 0, t('validation.inventory.adjustmentZero')),
+    reason: z.string().min(2, t('validation.inventory.reasonRequired')),
+  })
+}
 
-export type AdjustStockFormValues = z.infer<typeof adjustStockSchema>
+export type AdjustStockFormValues = z.infer<
+  ReturnType<typeof createAdjustStockSchema>
+>

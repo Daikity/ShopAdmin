@@ -1,7 +1,8 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ProductForm } from '@/entities/product'
-import { notifyToast } from '@/shared/lib'
+import { formatMoney, notifyToast } from '@/shared/lib'
 import {
   useDeleteProductMutation,
   useGetCategoriesQuery,
@@ -10,22 +11,23 @@ import {
 } from '@/shared/api/productsApi'
 import { PageHeader, QueryState } from '@/shared/ui'
 
-const tabs = [
-  'General',
-  'Media',
-  'Variants',
-  'Pricing',
-  'Inventory',
-  'SEO',
-  'Activity',
+const TAB_KEYS = [
+  'general',
+  'media',
+  'variants',
+  'pricing',
+  'inventory',
+  'seo',
+  'activity',
 ] as const
 
-type Tab = (typeof tabs)[number]
+type Tab = (typeof TAB_KEYS)[number]
 
 export function ProductDetailsPage() {
+  const { t } = useTranslation()
   const { id = '' } = useParams()
   const navigate = useNavigate()
-  const [tab, setTab] = useState<Tab>('General')
+  const [tab, setTab] = useState<Tab>('general')
 
   const { data, isLoading, isError, isFetching, isSuccess } =
     useGetProductQuery(id, { skip: !id })
@@ -36,8 +38,12 @@ export function ProductDetailsPage() {
   return (
     <section>
       <PageHeader
-        title={data?.name ?? 'Product'}
-        description={data ? `${data.sku} · ${data.categoryName}` : 'Карточка товара'}
+        title={data?.name ?? t('products.detailsFallbackTitle')}
+        description={
+          data
+            ? `${data.sku} · ${data.categoryName}`
+            : t('products.detailsFallbackDescription')
+        }
         back={{ to: '/catalog/products' }}
         actions={
           data ? (
@@ -46,13 +52,21 @@ export function ProductDetailsPage() {
               disabled={isDeleting}
               className="rounded-md border border-danger/40 px-3 py-2 text-small text-danger"
               onClick={async () => {
-                if (!window.confirm(`Удалить «${data.name}»?`)) return
+                if (
+                  !window.confirm(
+                    t('products.details.deleteConfirm', { name: data.name }),
+                  )
+                )
+                  return
                 await deleteProduct(data.id).unwrap()
-                notifyToast({ tone: 'success', message: 'Товар удалён' })
+                notifyToast({
+                  tone: 'success',
+                  message: t('products.toast.deleted'),
+                })
                 navigate('/catalog/products')
               }}
             >
-              Удалить
+              {t('products.details.delete')}
             </button>
           ) : null
         }
@@ -62,12 +76,12 @@ export function ProductDetailsPage() {
         isLoading={isLoading}
         isError={isError}
         isFetching={isFetching && isSuccess}
-        errorMessage="Товар не найден или недоступен"
+        errorMessage={t('products.detailsLoadError')}
       >
         {data ? (
           <div className="space-y-4">
             <div className="flex flex-wrap gap-2 border-b border-border pb-2">
-              {tabs.map((item) => (
+              {TAB_KEYS.map((item) => (
                 <button
                   key={item}
                   type="button"
@@ -79,28 +93,31 @@ export function ProductDetailsPage() {
                   ].join(' ')}
                   onClick={() => setTab(item)}
                 >
-                  {item}
+                  {t(`products.tab.${item}`)}
                 </button>
               ))}
             </div>
 
-            {tab === 'General' || tab === 'SEO' ? (
+            {tab === 'general' || tab === 'seo' ? (
               <div className="rounded-lg border border-border bg-surface p-4">
                 <ProductForm
                   key={`${data.id}-${data.updatedAt}`}
                   categories={categories}
                   initial={data}
-                  submitLabel="Сохранить"
+                  submitLabel={t('products.details.save')}
                   isSubmitting={isSaving}
                   onSubmit={async (payload) => {
                     await updateProduct({ id: data.id, body: payload }).unwrap()
-                    notifyToast({ tone: 'success', message: 'Товар обновлён' })
+                    notifyToast({
+                      tone: 'success',
+                      message: t('products.toast.updated'),
+                    })
                   }}
                 />
               </div>
             ) : null}
 
-            {tab === 'Media' ? (
+            {tab === 'media' ? (
               <div className="rounded-lg border border-border bg-surface p-4">
                 <img
                   src={data.imageUrl}
@@ -110,16 +127,24 @@ export function ProductDetailsPage() {
               </div>
             ) : null}
 
-            {tab === 'Variants' ? (
+            {tab === 'variants' ? (
               <div className="overflow-x-auto rounded-lg border border-border bg-surface">
                 <table className="w-full text-left text-small">
                   <thead className="bg-surface-muted text-caption text-text-secondary">
                     <tr>
-                      <th className="px-3 py-2">SKU</th>
-                      <th className="px-3 py-2">Attributes</th>
-                      <th className="px-3 py-2">Price</th>
-                      <th className="px-3 py-2">Stock</th>
-                      <th className="px-3 py-2">Status</th>
+                      <th className="px-3 py-2">{t('products.variants.sku')}</th>
+                      <th className="px-3 py-2">
+                        {t('products.variants.attributes')}
+                      </th>
+                      <th className="px-3 py-2">
+                        {t('products.variants.price')}
+                      </th>
+                      <th className="px-3 py-2">
+                        {t('products.variants.stock')}
+                      </th>
+                      <th className="px-3 py-2">
+                        {t('products.variants.status')}
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -131,9 +156,13 @@ export function ProductDetailsPage() {
                             .map(([key, value]) => `${key}: ${value}`)
                             .join(', ') || '—'}
                         </td>
-                        <td className="px-3 py-2">€{variant.price.toFixed(2)}</td>
+                        <td className="px-3 py-2">
+                          {formatMoney(variant.price)}
+                        </td>
                         <td className="px-3 py-2">{variant.stock}</td>
-                        <td className="px-3 py-2 capitalize">{variant.status}</td>
+                        <td className="px-3 py-2">
+                          {t(`enums.productStatus.${variant.status}`)}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -141,27 +170,31 @@ export function ProductDetailsPage() {
               </div>
             ) : null}
 
-            {tab === 'Pricing' ? (
+            {tab === 'pricing' ? (
               <div className="rounded-lg border border-border bg-surface p-4 text-small">
-                <p>Базовая цена: €{data.price.toFixed(2)}</p>
+                <p>
+                  {t('products.pricing.basePrice', {
+                    price: formatMoney(data.price),
+                  })}
+                </p>
+                <p className="text-text-secondary">{t('products.pricing.hint')}</p>
+              </div>
+            ) : null}
+
+            {tab === 'inventory' ? (
+              <div className="rounded-lg border border-border bg-surface p-4 text-small">
+                <p>
+                  {t('products.inventory.available', { stock: data.stock })}
+                </p>
                 <p className="text-text-secondary">
-                  Compare-at и bulk pricing — этап Pricing.
+                  {t('products.inventory.hint')}
                 </p>
               </div>
             ) : null}
 
-            {tab === 'Inventory' ? (
-              <div className="rounded-lg border border-border bg-surface p-4 text-small">
-                <p>Доступно (сумма variants): {data.stock}</p>
-                <p className="text-text-secondary">
-                  Adjust stock — этап Inventory.
-                </p>
-              </div>
-            ) : null}
-
-            {tab === 'Activity' ? (
+            {tab === 'activity' ? (
               <div className="rounded-lg border border-border bg-surface p-4 text-small text-text-secondary">
-                Activity / audit по товару появится вместе с Audit Log.
+                {t('products.activity.hint')}
               </div>
             ) : null}
           </div>

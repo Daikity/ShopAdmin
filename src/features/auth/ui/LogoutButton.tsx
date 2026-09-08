@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { logout } from '../model/session'
 
 type LogoutButtonProps = {
@@ -5,6 +6,8 @@ type LogoutButtonProps = {
 }
 
 export function LogoutButton({ onLoggedOut }: LogoutButtonProps) {
+  const { t } = useTranslation()
+
   return (
     <button
       type="button"
@@ -14,7 +17,7 @@ export function LogoutButton({ onLoggedOut }: LogoutButtonProps) {
         onLoggedOut?.()
       }}
     >
-      Выйти
+      {t('auth.logout')}
     </button>
   )
 }

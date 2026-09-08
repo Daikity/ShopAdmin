@@ -1,8 +1,8 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { ReturnAction, ReturnItem } from '@/entities/return'
 import {
   getAvailableReturnActions,
-  getReturnActionLabel,
   isDestructiveReturnAction,
   resolveReturnActionStatus,
 } from '@/entities/return'
@@ -16,14 +16,26 @@ type ReturnStatusActionsProps = {
   onDone?: () => void
 }
 
+const RETURN_ACTION_KEYS = {
+  approve: 'returns.workflow.approve',
+  reject: 'returns.workflow.reject',
+  receive: 'returns.workflow.receive',
+  refund: 'returns.workflow.refund',
+} as const
+
 export function ReturnStatusActions({
   item,
   onDone,
 }: ReturnStatusActionsProps) {
+  const { t } = useTranslation()
   const [pendingAction, setPendingAction] = useState<ReturnAction | null>(null)
   const [changeStatus, { isLoading }] = useChangeReturnStatusMutation()
   const canWrite = useCan('returns.write')
   const actions = canWrite ? getAvailableReturnActions(item.status) : []
+
+  function actionLabel(action: ReturnAction) {
+    return t(RETURN_ACTION_KEYS[action])
+  }
 
   async function apply(action: ReturnAction) {
     try {
@@ -33,13 +45,16 @@ export function ReturnStatusActions({
       }).unwrap()
       notifyToast({
         tone: 'success',
-        message: `${item.number}: ${getReturnActionLabel(action)}`,
+        message: t('returns.toast.success', {
+          number: item.number,
+          action: actionLabel(action),
+        }),
       })
       onDone?.()
     } catch {
       notifyToast({
         tone: 'error',
-        message: `${item.number}: action failed`,
+        message: t('returns.toast.failed', { number: item.number }),
       })
     } finally {
       setPendingAction(null)
@@ -50,8 +65,10 @@ export function ReturnStatusActions({
     return (
       <p className="text-small text-text-secondary">
         {!canWrite
-          ? 'Нет permission returns.write'
-          : `Нет доступных действий для «${item.status}».`}
+          ? t('returns.action.noPermission')
+          : t('returns.action.noneForStatus', {
+              status: t(`enums.returnStatus.${item.status}`),
+            })}
       </p>
     )
   }
@@ -78,17 +95,20 @@ export function ReturnStatusActions({
               void apply(action)
             }}
           >
-            {getReturnActionLabel(action)}
+            {actionLabel(action)}
           </button>
         ))}
       </div>
 
       <ConfirmDialog
         open={pendingAction !== null}
-        title="Отклонить возврат?"
+        title={t('returns.confirmTitle')}
         description={
           pendingAction
-            ? `${getReturnActionLabel(pendingAction)} для ${item.number}?`
+            ? t('returns.confirmDescription', {
+                action: actionLabel(pendingAction),
+                number: item.number,
+              })
             : null
         }
         tone="danger"

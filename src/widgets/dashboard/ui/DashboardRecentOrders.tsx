@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import type { OrderListItem } from '@/entities/order'
 import { formatMoney } from '@/shared/lib'
 
@@ -7,25 +8,23 @@ type DashboardRecentOrdersProps = {
 }
 
 export function DashboardRecentOrders({ items }: DashboardRecentOrdersProps) {
+  const { t } = useTranslation()
   return (
     <div className="rounded-lg border border-border bg-surface p-4 shadow-panel">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h2 className="text-h2">Recent orders</h2>
+          <h2 className="text-h2">{t('dashboard.recentTitle')}</h2>
           <p className="mt-1 text-small text-text-secondary">
-            Последние в выбранном периоде
+            {t('dashboard.recentSubtitle')}
           </p>
         </div>
-        <Link
-          to="/orders"
-          className="text-small text-accent hover:underline"
-        >
-          Все orders
+        <Link to="/orders" className="text-small text-accent hover:underline">
+          {t('dashboard.recentViewAll')}
         </Link>
       </div>
       {items.length === 0 ? (
         <p className="py-10 text-center text-small text-text-secondary">
-          Нет заказов за период
+          {t('dashboard.recentEmpty')}
         </p>
       ) : (
         <ul className="mt-4 divide-y divide-border">
@@ -42,7 +41,7 @@ export function DashboardRecentOrders({ items }: DashboardRecentOrdersProps) {
                   {order.number}
                 </Link>
                 <p className="truncate text-caption text-text-secondary">
-                  {order.customerName} · {order.status}
+                  {order.customerName} · {t(`enums.orderStatus.${order.status}`)}
                 </p>
               </div>
               <span className="shrink-0 tabular-nums">

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import type { BulkProductsResult } from '@/entities/product'
 import { resolveBulkStatus } from '@/entities/product'
 
@@ -7,6 +8,7 @@ type BulkResultSummaryProps = {
 }
 
 export function BulkResultSummary({ result, onDismiss }: BulkResultSummaryProps) {
+  const { t } = useTranslation()
   const status = resolveBulkStatus(result)
   const toneClass =
     status === 'success'
@@ -19,9 +21,14 @@ export function BulkResultSummary({ result, onDismiss }: BulkResultSummaryProps)
     <div className={`rounded-lg border p-3 text-small ${toneClass}`} role="status">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="font-semibold capitalize">{status}</p>
+          <p className="font-semibold capitalize">
+            {t(`bulk.status.${status}`)}
+          </p>
           <p>
-            {result.updated} updated · {result.failed} failed
+            {t('bulk.result.updatedFailed', {
+              updated: result.updated,
+              failed: result.failed,
+            })}
           </p>
           {result.failures.length > 0 ? (
             <ul className="mt-2 space-y-1 text-caption opacity-90">
@@ -31,7 +38,9 @@ export function BulkResultSummary({ result, onDismiss }: BulkResultSummaryProps)
                 </li>
               ))}
               {result.failures.length > 5 ? (
-                <li>…и ещё {result.failures.length - 5}</li>
+                <li>
+                  {t('common.andMore', { count: result.failures.length - 5 })}
+                </li>
               ) : null}
             </ul>
           ) : null}
@@ -41,7 +50,7 @@ export function BulkResultSummary({ result, onDismiss }: BulkResultSummaryProps)
           className="text-caption font-medium underline"
           onClick={onDismiss}
         >
-          Закрыть
+          {t('bulk.result.close')}
         </button>
       </div>
     </div>

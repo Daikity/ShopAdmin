@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import type { CustomerListItem } from '@/entities/customer'
+import { formatDate, formatMoney } from '@/shared/lib'
 import {
   DataTable,
   TBody,
@@ -48,17 +50,24 @@ export function CustomerTable({
   onSort,
   sort,
 }: CustomerTableProps) {
+  const { t } = useTranslation()
+
   return (
     <DataTable>
       <THead>
         <TR>
           <TH>
-            <SortButton label="Customer" field="name" sort={sort} onSort={onSort} />
+            <SortButton
+              label={t('customers.table.customer')}
+              field="name"
+              sort={sort}
+              onSort={onSort}
+            />
           </TH>
-          <TH>Email</TH>
+          <TH>{t('customers.table.email')}</TH>
           <TH>
             <SortButton
-              label="Orders"
+              label={t('customers.table.orders')}
               field="ordersCount"
               sort={sort}
               onSort={onSort}
@@ -66,7 +75,7 @@ export function CustomerTable({
           </TH>
           <TH>
             <SortButton
-              label="Total spent"
+              label={t('customers.table.totalSpent')}
               field="totalSpent"
               sort={sort}
               onSort={onSort}
@@ -74,16 +83,16 @@ export function CustomerTable({
           </TH>
           <TH>
             <SortButton
-              label="Last order"
+              label={t('customers.table.lastOrder')}
               field="lastOrderAt"
               sort={sort}
               onSort={onSort}
             />
           </TH>
-          <TH>Status</TH>
+          <TH>{t('customers.table.status')}</TH>
           <TH>
             <SortButton
-              label="Created"
+              label={t('customers.table.created')}
               field="createdAt"
               sort={sort}
               onSort={onSort}
@@ -97,7 +106,7 @@ export function CustomerTable({
         ) : (
           items.map((item) => (
             <TR key={item.id}>
-              <TD>
+              <TD label={t('customers.table.customer')}>
                 <Link
                   to={`/customers/${item.id}`}
                   className="font-medium text-accent hover:underline"
@@ -105,21 +114,32 @@ export function CustomerTable({
                   {item.name}
                 </Link>
               </TD>
-              <TD className="text-small text-text-secondary">{item.email}</TD>
-              <TD>{item.ordersCount}</TD>
-              <TD>€{item.totalSpent.toFixed(2)}</TD>
-              <TD className="text-small text-text-secondary">
-                {item.lastOrderAt
-                  ? new Date(item.lastOrderAt).toLocaleDateString('ru-RU')
-                  : '—'}
+              <TD
+                label={t('customers.table.email')}
+                className="text-small text-text-secondary"
+              >
+                {item.email}
               </TD>
-              <TD>
-                <span className="rounded-md bg-surface-muted px-2 py-0.5 text-caption capitalize">
-                  {item.status}
+              <TD label={t('customers.table.orders')}>{item.ordersCount}</TD>
+              <TD label={t('customers.table.totalSpent')}>
+                {formatMoney(item.totalSpent)}
+              </TD>
+              <TD
+                label={t('customers.table.lastOrder')}
+                className="text-small text-text-secondary"
+              >
+                {item.lastOrderAt ? formatDate(item.lastOrderAt) : '—'}
+              </TD>
+              <TD label={t('customers.table.status')}>
+                <span className="rounded-md bg-surface-muted px-2 py-0.5 text-caption">
+                  {t(`enums.customerStatus.${item.status}`)}
                 </span>
               </TD>
-              <TD className="text-small text-text-secondary">
-                {new Date(item.createdAt).toLocaleDateString('ru-RU')}
+              <TD
+                label={t('customers.table.created')}
+                className="text-small text-text-secondary"
+              >
+                {formatDate(item.createdAt)}
               </TD>
             </TR>
           ))
