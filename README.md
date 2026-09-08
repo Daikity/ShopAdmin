@@ -1,14 +1,6 @@
 # ShopAdmin
 
-Production-like frontend админ-панель для e-commerce (portfolio, Middle+/Senior).
-
-Sibling к [FlowCRM](https://github.com/Daikity/flowcrm): тот же стек и FSD, другой домен — сложные workflows, bulk, optimistic UI, RBAC, audit.
-
-## Статус
-
-**Phase 9 — i18n + a11y + UX:** `i18next` en/ru/de, Intl (деньги/даты), Settings → locale, ConfirmDialog focus trap, mobile card-stack таблицы.
-
-Ранее: Phase 0–8 (Foundation → Users/Roles/Audit/Settings).
+Production-like frontend админ-панель для e-commerce 
 
 ## Стек
 
@@ -22,6 +14,7 @@ Sibling к [FlowCRM](https://github.com/Daikity/flowcrm): тот же стек �
 - MSW (mock API)
 - Vitest + React Testing Library
 - ESLint + `eslint-plugin-boundaries` (FSD)
+- GitHub Actions CI
 
 ## Архитектура
 
@@ -32,31 +25,37 @@ RBAC: demoRole slice → can(role, permission) → hide/disable actions
 Audit: MSW appendAudit → GET /api/audit-log
 ```
 
+FSD-слои: `app` / `pages` / `widgets` / `features` / `entities` / `shared`.  
+Admin Kit (минимум): `DataTable`, `ConfirmDialog`, `QueryState`, `PageHeader`, `Toast`, `useUrlFilters`.
+
 ## Команды
 
 ```bash
 npm install
 npm run dev
-npm run check
+npm run check   # typecheck + lint + test:run + build
 ```
 
 ## Демо-вход
 
 `admin` / `admin`
 
-- Catalog bulk: product id % 7 → partial failure
-- Orders: order id % 11 → status rollback
-- Inventory: product id % 13 → adjust rollback
-- Pricing: selection → Preview → Apply
-- Returns: `/returns` → drawer actions
-- Customers: `/customers/:id`
-- Dashboard / Reports: URL period/filters + DatePicker
-- Role Switcher (header): Admin / Manager / Support / Warehouse / Analyst
-- Audit: `/audit-log`; Settings: language + density + network simulation
-- i18n: Settings → Language (en / ru / de)
+| Демо | Как воспроизвести |
+|------|-------------------|
+| Bulk partial failure | Catalog: product id % 7 |
+| Order status rollback | Order id % 11 → 409 |
+| Inventory adjust rollback | Product id % 13 → conflict |
+| Pricing bulk | Selection → Preview → Apply |
+| Returns workflow | `/returns` → drawer actions |
+| Customers | `/customers/:id` |
+| Dashboard / Reports | URL period/filters + DatePicker |
+| Role Switcher | Header: Admin / Manager / Support / Warehouse / Analyst |
+| Audit + network sim | `/audit-log`; Settings → network simulation |
+| i18n | Settings → Language (en / ru / de) |
 
-## Чем будет отличаться от FlowCRM
+## Limitations
 
-ShopAdmin → e-commerce / bulk / order & return workflows / optimistic UI / inventory / pricing / returns / RBAC / audit.
-
-Auth и RBAC симулированы на frontend/MSW (`can()` — UI capability); в production authorization должен быть на backend.
+- **Auth** — демо `admin/admin`, session в `localStorage`, MSW `/api/auth/probe`. Нет реального backend.
+- **RBAC** — `can()` скрывает/дизейблит UI; authorization в production должен быть на сервере.
+- **Данные** — stateful MSW + deterministic seed; сброс при reload страницы (кроме settings/role в localStorage).
+- **Сеть** — latency и редкие 409/500 включаются флагом в Settings для демо rollback.
