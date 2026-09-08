@@ -5,6 +5,33 @@
   "folder": "ShopAdmiin",
   "stack": ["React", "TypeScript", "Vite", "Redux Toolkit", "MSW", "RBAC"],
   "summary": "Админ-панель e-commerce: товары, заказы, роли и аудит",
+  "show": true,
   "featured": true,
-  "status": "online"
+  "status": "online",
+  "case": {
+    "ru": {
+      "summary": "Админ-панель e-commerce: каталог, заказы, роли и журнал аудита.",
+      "problem": "Нужна была production-like админка с таблицами, фильтрами, RBAC и audit log — без поднятия полноценного сервера.",
+      "solution": "FSD-архитектура, RTK Query + MSW, роли и права, DataTable/ConfirmDialog/QueryState, i18n и CI-проверка typecheck/lint/test/build.",
+      "result": "Демонстрация админского фронтенда «как в бою»: права режут действия, состояния запросов явные, сценарии покрыты тестами.",
+      "metaTitle": "ShopAdmin — кейс e-commerce админки",
+      "metaDescription": "Кейс ShopAdmin: админ-панель на React с RBAC, MSW и audit log. Товары, заказы, роли."
+    },
+    "en": {
+      "summary": "E-commerce admin panel: catalog, orders, roles, and audit log.",
+      "problem": "I needed a production-like admin with tables, filters, RBAC, and an audit log — without standing up a full backend.",
+      "solution": "FSD architecture, RTK Query + MSW, roles and permissions, DataTable/ConfirmDialog/QueryState, i18n, and CI for typecheck/lint/test/build.",
+      "result": "A realistic admin frontend demo: permissions gate actions, query states are explicit, and flows are covered by tests.",
+      "metaTitle": "ShopAdmin — e-commerce admin case study",
+      "metaDescription": "ShopAdmin case: React admin panel with RBAC, MSW, and audit log. Products, orders, roles."
+    },
+    "de": {
+      "summary": "E-Commerce-Admin: Katalog, Bestellungen, Rollen und Audit-Log.",
+      "problem": "Gesucht war ein production-like Admin mit Tabellen, Filtern, RBAC und Audit-Log — ohne volles Backend.",
+      "solution": "FSD-Architektur, RTK Query + MSW, Rollen und Rechte, DataTable/ConfirmDialog/QueryState, i18n und CI für typecheck/lint/test/build.",
+      "result": "Realistische Admin-Demo: Rechte steuern Aktionen, Query-States sind klar, Szenarien sind getestet.",
+      "metaTitle": "ShopAdmin — E-Commerce Admin Case Study",
+      "metaDescription": "ShopAdmin Case: React-Admin mit RBAC, MSW und Audit-Log. Produkte, Bestellungen, Rollen."
+    }
+  }
 }
