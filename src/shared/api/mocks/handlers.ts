@@ -1,8 +1,12 @@
 import { http, HttpResponse } from 'msw'
+import { customerHandlers } from './customer.handlers'
+import { dashboardHandlers } from './dashboard.handlers'
 import { inventoryHandlers } from './inventory.handlers'
 import { orderHandlers } from './order.handlers'
 import { pricingHandlers } from './pricing.handlers'
 import { productHandlers } from './product.handlers'
+import { reportsHandlers } from './reports.handlers'
+import { returnHandlers } from './return.handlers'
 
 export const handlers = [
   http.get('/api/auth/probe', ({ request }) => {
@@ -24,4 +28,8 @@ export const handlers = [
   ...orderHandlers,
   ...inventoryHandlers,
   ...pricingHandlers,
+  ...returnHandlers,
+  ...customerHandlers,
+  ...dashboardHandlers,
+  ...reportsHandlers,
 ]

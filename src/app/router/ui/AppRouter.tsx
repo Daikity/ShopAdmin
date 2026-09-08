@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { GuestRoute, ProtectedRoute } from '@/features/auth'
 import { AuditLogPage } from '@/pages/audit-log'
 import { CustomersPage } from '@/pages/customers'
+import { CustomerDetailsPage } from '@/pages/customer-details'
 import { DashboardPage } from '@/pages/dashboard'
 import { InventoryPage } from '@/pages/inventory'
 import { LoginPage } from '@/pages/login'
@@ -35,6 +36,7 @@ export function AppRouter() {
             <Route path="/orders" element={<OrdersPage />} />
             <Route path="/orders/:id" element={<OrderDetailsPage />} />
             <Route path="/customers" element={<CustomersPage />} />
+            <Route path="/customers/:id" element={<CustomerDetailsPage />} />
             <Route path="/inventory" element={<InventoryPage />} />
             <Route path="/pricing" element={<PricingPage />} />
             <Route path="/returns" element={<ReturnsPage />} />

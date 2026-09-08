@@ -15,6 +15,7 @@ export type {
 } from './model/types'
 export {
   orderFiltersSchema,
+  paymentStatusSchema,
   type OrderFilters,
 } from './model/schemas'
 export {

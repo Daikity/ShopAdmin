@@ -6,9 +6,9 @@ Sibling к [FlowCRM](https://github.com/Daikity/flowcrm): тот же стек �
 
 ## Статус
 
-**Phase 5 — Inventory + Pricing:** склад (stock states, warehouses, adjust + optimistic/rollback + MSW audit), pricing (edit, bulk %/fixed с обязательным preview).
+**Phase 7 — Dashboard + Reports:** KPI/Recharts, period URL на dashboard, reports с URL-фильтрами (date/category/product/customer/payment), кастомный `DatePicker`, MSW-агрегации по seed orders/returns/inventory.
 
-Ранее: Phase 0–4 (Foundation, Auth, Catalog, Bulk, Orders).
+Ранее: Phase 0–6 (Foundation, Auth, Catalog, Bulk, Orders, Inventory + Pricing, Returns + Customers).
 
 ## Стек
 
@@ -17,6 +17,7 @@ Sibling к [FlowCRM](https://github.com/Daikity/flowcrm): тот же стек �
 - Redux Toolkit + RTK Query
 - React Router
 - React Hook Form + Zod
+- Recharts
 - MSW (mock API)
 - Vitest + React Testing Library
 - ESLint + `eslint-plugin-boundaries` (FSD)
@@ -25,8 +26,8 @@ Sibling к [FlowCRM](https://github.com/Daikity/flowcrm): тот же стек �
 
 ```text
 UI → Features/Widgets → Entities → RTK Query → /api/* → MSW
-Inventory adjust → optimistic → audit writer
-Pricing bulk → preview → confirm → apply
+Dashboard: GET /api/dashboard?from&to → KPI + charts
+Reports: GET /api/reports + URL filters → revenue/orders/category/top
 ```
 
 ## Команды
@@ -41,10 +42,14 @@ npm run check
 
 `admin` / `admin`
 
-- Catalog bulk: `/catalog/products` — partial failure: product id % 7.
-- Orders: `/orders/:id` — rollback: order id % 11.
-- Inventory: `/inventory` — Adjust; rollback: product id % 13.
-- Pricing: `/pricing` — selection → Preview → Apply.
+- Catalog bulk: product id % 7 → partial failure
+- Orders: order id % 11 → status rollback
+- Inventory: product id % 13 → adjust rollback
+- Pricing: selection → Preview → Apply
+- Returns: `/returns` → drawer actions
+- Customers: `/customers/:id`
+- Dashboard: `/dashboard?from=&to=` + presets Today/7/30/90
+- Reports: `/reports` + category/product/customer/payment filters
 
 ## Чем будет отличаться от FlowCRM
 
