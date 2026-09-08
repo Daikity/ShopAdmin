@@ -59,3 +59,12 @@ npm run check   # typecheck + lint + test:run + build
 - **RBAC** — `can()` скрывает/дизейблит UI; authorization в production должен быть на сервере.
 - **Данные** — stateful MSW + deterministic seed; сброс при reload страницы (кроме settings/role в localStorage).
 - **Сеть** — latency и редкие 409/500 включаются флагом в Settings для демо rollback.
+
+## Портфолио / Docker
+
+- Vite `base`: `/demos/shopadmin/`
+- Router `basename`: из `import.meta.env.BASE_URL`
+- MSW включён и в production (демо без бэкенда)
+- Образ: `Dockerfile` → nginx SPA
+
+В стеке портфолио: http://localhost/demos/shopadmin/

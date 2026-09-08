@@ -4,12 +4,14 @@ import { App } from './App'
 import './styles/index.css'
 
 async function enableMocking() {
-  if (import.meta.env.PROD) {
-    return
-  }
-
+  // Моки нужны и в Docker-демо (бэкенда нет)
   const { worker } = await import('@/shared/api/mocks/browser')
-  return worker.start({ onUnhandledRequest: 'bypass' })
+  return worker.start({
+    onUnhandledRequest: 'bypass',
+    serviceWorker: {
+      url: `${import.meta.env.BASE_URL}mockServiceWorker.js`,
+    },
+  })
 }
 
 const rootElement = document.getElementById('root')
